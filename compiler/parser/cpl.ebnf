@@ -1,0 +1,29 @@
+translation-unit ::= {function-definition}*
+
+function-definition ::= type-specifier identifier
+                        arg-list
+                        compound-statement
+
+scoped-type-specifier ::= {scope-specifier} type-specifier
+
+scope-specifier ::= "local" | "subglobal"
+                  | "global"
+
+type-specifier ::= type-name {"*"}
+
+type-name ::= "int" | "str"
+            | "float" | "bool"
+
+arg-list ::= "(" arg {"," arg}* ")"
+
+arg ::= scoped-type-specifier identifier
+
+compound-statement ::= "{" {statement}* "}"
+
+statement ::= compound-statement
+            | selection-statement
+            | iteration-statement
+            | assignment-statement
+
+assignment-statement ::= identifier "=" expression
+                       | declaration
