@@ -7,7 +7,7 @@ def load_ebnf(fp):
     regex_subst = r"((\b(?<=[^\"])|^)[\w-]+)"
 
     with open(fp) as f:
-        data = f.read()
+        data = f.read().replace("'", '"')
     
     stmt_list = re.findall(regex_stmt, data)
 

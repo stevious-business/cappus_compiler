@@ -29,7 +29,10 @@ class TokenList:
         "else",
         "for",
         "while",
-        "return"
+        "return",
+        "local",
+        "subglobal",
+        "global"
     ]
 
     SINGLES = [
@@ -71,9 +74,37 @@ class TokenList:
 
     BOOLEANS = ("true", "false")
 
+    OPENPARS = ("(", "[", "{")
+
+    CLOSEPARS = (")", "]", "}")
+
 class Lexeme:
     def __init__(self, tokenType: TokenType, value: str, src):
         self.tokenType = tokenType
         self.value = value
         self.src = src
         self.stamp = src.get_pos()
+
+def from_string(str_: str):
+    """Returns a TokenType of which <str_> is a valid value"""
+    specials = {
+        "=": TokenType.EQUALS,
+        ";": TokenType.SEMICOLON,
+        ".": TokenType.DOT,
+        ",": TokenType.COMMA,
+        ":": TokenType.COLON
+    }
+    if str_ in TokenList.OPENPARS:
+        return TokenType.OPENPAR
+    elif str_ in TokenList.CLOSEPARS:
+        return TokenType.CLOSEPAR
+    elif str_ in TokenList.SINGLES + TokenList.DOUBLES + TokenList.TRIPLES:
+        return TokenType.OPERATOR
+    elif str_ in TokenList.KEYWORDS:
+        return TokenType.KEYWORD
+    elif str_ in TokenList.BOOLEANS:
+        return TokenType.BOOL
+    elif str_ in specials.keys():
+        return specials[str_]
+    else:
+        return TokenType.INVALID

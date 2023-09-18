@@ -3,10 +3,11 @@ from compiler.lexer import tokens
 class AST_Node:
     def __init__(self, name, parent, children: list = []):
         self.parent = parent
+        self.parent.add_child(self)
         self.children = children
         self.name = name
     
-    def add_child(self, child: tokens.Lexeme):
+    def add_child(self, child):
         self.children.append(child)
     
     def get_children(self):
@@ -27,4 +28,4 @@ class AST_Terminal(AST_Node):
 class AST(AST_Node):
     def __init__(self, name, children: list = []):
         self.name = "root"
-        self.children = [AST_Node(name, self, children)]
+        self.children = []

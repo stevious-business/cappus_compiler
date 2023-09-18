@@ -1,4 +1,5 @@
 /* the main function */
+int >= +
 int main() {
     for (int i; i<10; i++) {
         if (i < 5) {

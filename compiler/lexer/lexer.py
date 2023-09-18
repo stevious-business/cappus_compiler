@@ -9,6 +9,17 @@ class LexemeStream:
     def __init__(self, src: source.Source):
         self.lexemes = []
         self.source = src
+        self.pointer = 0
+        self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "", self.source)
+    
+    def consume_lexeme(self) -> tokens.Lexeme:
+        try:
+            self.lexeme = self.lexemes[self.pointer]
+            self.pointer += 1
+            return self.lexeme
+        except IndexError:
+            self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "", self.source)
+            return self.lexeme
     
     def get_lexemes(self):
         """Returns current list of lexemes"""
@@ -43,17 +54,6 @@ class LexemeStream:
                 if value in tokens.TokenList.BOOLEANS:
                     tokenType = tokens.TokenType.BOOL
             lexeme = tokens.Lexeme(tokenType, value, self.source)
-            self.lexemes.append(lexeme)
-            return lexeme
-        # parens
-        elif char in ('(', '{', '['):
-            lexeme = tokens.Lexeme(tokens.TokenType.OPENPAR, char,
-                                   self.source)
-            self.lexemes.append(lexeme)
-            return lexeme
-        elif char in (')', '}', ']'):
-            lexeme = tokens.Lexeme(tokens.TokenType.CLOSEPAR, char,
-                                   self.source)
             self.lexemes.append(lexeme)
             return lexeme
         # literals
@@ -108,33 +108,17 @@ class LexemeStream:
                                        self.source)
             self.lexemes.append(lexeme)
             return lexeme
-        # special symbols
-        elif char == "=":
-            lexeme = tokens.Lexeme(tokens.TokenType.EQUALS, char, self.source)
-            self.lexemes.append(lexeme)
-            return lexeme
-        elif char == ";":
-            lexeme = tokens.Lexeme(tokens.TokenType.SEMICOLON, char,
-                                   self.source)
-            self.lexemes.append(lexeme)
-            return lexeme
-        elif char == ".":
-            lexeme = tokens.Lexeme(tokens.TokenType.DOT, char,
-                                   self.source)
-            self.lexemes.append(lexeme)
-            return lexeme
-        elif char == ",":
-            lexeme = tokens.Lexeme(tokens.TokenType.COMMA, char,
-                                   self.source)
-            self.lexemes.append(lexeme)
-            return lexeme
-        elif char == ":":
-            lexeme = tokens.Lexeme(tokens.TokenType.COLON, char,
-                                   self.source)
-            self.lexemes.append(lexeme)
-            return lexeme
-        # Invalid
+        
         else:
-            log(LOG_FAIL, f"Failed to identify token: {char} at {self.source.get_pos()}")
-            self.lexemes.append(tokens.Lexeme(tokens.TokenType.INVALID, char, self.source))
-            return tokens.Lexeme(tokens.TokenType.INVALID, char, self.source)
+            tokenType = tokens.from_string(char)
+            if tokenType is tokens.TokenType.INVALID:
+                log(LOG_FAIL,
+                    "Failed to identify token: %s at %s" %
+                    (char, self.source.get_pos()))
+                self.lexemes.append(
+                    tokens.Lexeme(tokenType, char, self.source))
+                return tokens.Lexeme(tokenType, char, self.source)
+            else:
+                lexeme = tokens.Lexeme(tokenType, char, self.source)
+                self.lexemes.append(lexeme)
+                return lexeme
