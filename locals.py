@@ -1,9 +1,10 @@
-LOG_VERB = 1
-LOG_DEBG = 2
-LOG_INFO = 3
-LOG_WARN = 4
-LOG_FAIL = 5
+LOG_BASE = 0 # dump everything
+LOG_VERB = 1 # realistically everything that should be known
+LOG_DEBG = 2 # general structure and program trace
+LOG_INFO = 3 # user-level output
+LOG_WARN = 4 # important mishaps
+LOG_FAIL = 5 # absolute failure
 
-DEBUG_LEVEL = LOG_VERB
+DEBUG_LEVEL = LOG_DEBG
 
 SW_NAME = "CFC" # Compiler For Cappus

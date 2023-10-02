@@ -1,5 +1,7 @@
 from enum import Enum, auto
 
+from cfclogger import *
+
 class TokenType(Enum):
     DOT = auto()
     COMMA = auto()
@@ -18,9 +20,13 @@ class TokenType(Enum):
     INTEGER = auto()
     FLOAT = auto()
     BOOL = auto()
+    ENUMERATION = auto()
 
 class TokenList:
     KEYWORDS = [
+        "local",
+        "subglobal",
+        "global",
         "int",
         "str",
         "float",
@@ -29,10 +35,9 @@ class TokenList:
         "else",
         "for",
         "while",
-        "return",
-        "local",
-        "subglobal",
-        "global"
+        "break",
+        "continue",
+        "return"
     ]
 
     SINGLES = [
@@ -46,7 +51,8 @@ class TokenList:
         "&",
         "|",
         "!",
-        "^"
+        "^",
+        "~"
     ]
 
     DOUBLES = [
@@ -54,7 +60,7 @@ class TokenList:
         "+=",
         "--",
         "-=",
-        "**"
+        "**",
         "*=",
         "/=",
         ">>",
@@ -64,7 +70,11 @@ class TokenList:
         "&&",
         "||",
         "!=",
-        "^="
+        "^=",
+        "%=",
+        "&=",
+        "|=",
+        "=="
     ]
 
     TRIPLES = [
@@ -92,7 +102,8 @@ def from_string(str_: str):
         ";": TokenType.SEMICOLON,
         ".": TokenType.DOT,
         ",": TokenType.COMMA,
-        ":": TokenType.COLON
+        ":": TokenType.COLON,
+        "EOF": TokenType.EOF
     }
     if str_ in TokenList.OPENPARS:
         return TokenType.OPENPAR
@@ -107,4 +118,5 @@ def from_string(str_: str):
     elif str_ in specials.keys():
         return specials[str_]
     else:
+        log(LOG_WARN, f"Invalid value {str_}")
         return TokenType.INVALID

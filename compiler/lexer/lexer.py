@@ -12,10 +12,27 @@ class LexemeStream:
         self.pointer = 0
         self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "", self.source)
     
+    def copy(self):
+        ls = LexemeStream(self.source)
+        ls.lexemes = self.lexemes
+        ls.pointer = self.pointer
+        ls.lexeme = self.lexeme
+        return ls
+    
+    def update(self, ls):
+        self.lexemes = ls.lexemes
+        self.pointer = ls.pointer
+        self.lexeme = ls.lexeme
+        log(LOG_BASE, f"Updating lstream with ptr {self.pointer}")
+    
     def consume_lexeme(self) -> tokens.Lexeme:
         try:
             self.lexeme = self.lexemes[self.pointer]
             self.pointer += 1
+            log(LOG_BASE, "Consuming lexeme %s: %s" % (
+                self.lexeme.tokenType.name,
+                self.lexeme.value
+            ))
             return self.lexeme
         except IndexError:
             self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "", self.source)
@@ -71,12 +88,18 @@ class LexemeStream:
                                              self.source)
                     tokenType = tokens.TokenType.FLOAT
                 value += self.source.get()
+            if tokenType == tokens.TokenType.FLOAT:
+                if self.source.peek() != "f":
+                    raise SyntaxError("Invalid notation for float at "
+                                      +self.source.get_pos())
+                else:
+                    value += self.source.get()
             lexeme = tokens.Lexeme(tokenType, value, self.source)
             self.lexemes.append(lexeme)
             return lexeme
-        elif char == '"':
+        elif char == "'":
             while True:
-                if char != "\\" and self.source.peek() == '"':
+                if char != "\\" and self.source.peek() == "'":
                     value += self.source.get()
                     break
                 char = self.source.get()

@@ -4,14 +4,28 @@ from locals import *
 
 launch = perf_counter()
 
+log_indent_count = 0
+
+log_spacing = 4
+
 def ts() -> str:
     global launch
     odd_len_text = f"{round(perf_counter()-launch, 4)}"
     return odd_len_text.zfill(10)
 
+def log_indent():
+    global log_indent_count
+    log_indent_count += log_spacing
+
+def log_dedent():
+    global log_indent_count
+    log_indent_count -= log_spacing
+
 def log(level, text, nts=False, **kwargs):
+    global log_indent_count
     if level >= DEBUG_LEVEL:
         level_colors = {
+            LOG_BASE: "\033[90m",
             LOG_VERB: "\033[35m",
             LOG_DEBG: "\033[2;33m",
             LOG_INFO: "\033[0m",
@@ -19,6 +33,7 @@ def log(level, text, nts=False, **kwargs):
             LOG_FAIL: "\033[41m"
         }
         level_texts = {
+            LOG_BASE: "BASE",
             LOG_VERB: "VERB",
             LOG_DEBG: "DEBG",
             LOG_INFO: "INFO",
@@ -31,4 +46,5 @@ def log(level, text, nts=False, **kwargs):
         pre = f"[\033[36m{SW_NAME}\033[0m::" \
             + f"\033[32m{ts()}\033[0m::" \
             + f"{level_colors[level]+level_texts[level]}\033[0m]"
-        print(f"{pre} {level_colors[level]}{text}\033[0m", **kwargs)
+        print(f"{pre} {' '*log_indent_count} \
+{level_colors[level]}{text}\033[0m", **kwargs)
