@@ -35,7 +35,7 @@ class LexemeStream:
             ))
             return self.lexeme
         except IndexError:
-            self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "", self.source)
+            self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "EOF", self.source)
             return self.lexeme
     
     def get_lexemes(self):

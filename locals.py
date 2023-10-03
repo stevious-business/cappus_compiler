@@ -5,6 +5,16 @@ LOG_INFO = 3 # user-level output
 LOG_WARN = 4 # important mishaps
 LOG_FAIL = 5 # absolute failure
 
-DEBUG_LEVEL = LOG_DEBG
-
 SW_NAME = "CFC" # Compiler For Cappus
+
+class DBGLVL:
+    def __init__(self, lvl):
+        self.lvl = lvl
+    
+    def set(self, lvl):
+        self.lvl = lvl
+
+    def get(self):
+        return self.lvl
+
+DBG = DBGLVL(LOG_DEBG)

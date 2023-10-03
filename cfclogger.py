@@ -22,8 +22,7 @@ def log_dedent():
     log_indent_count -= log_spacing
 
 def log(level, text, nts=False, **kwargs):
-    global log_indent_count
-    if level >= DEBUG_LEVEL:
+    if level >= DBG.get():
         level_colors = {
             LOG_BASE: "\033[90m",
             LOG_VERB: "\033[35m",

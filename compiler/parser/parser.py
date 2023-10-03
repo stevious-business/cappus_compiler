@@ -42,6 +42,8 @@ def genASTNode(parent, grammar: dict, generator_type: str,
         n = AST_Terminal(node, next_lexeme) # construct terminal
         return n
     log(LOG_DEBG, f"Going into {generator_type}...")
+    if generator_type == "<constant>":
+        pass # breakpoint
     log_indent()
     for i, possSet in enumerate(grammar[generator_type]):
         # possSet - one is true
@@ -56,6 +58,7 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                             lexeme.tokenType.name
                         ))
                     log(LOG_VERB, f"Parsed identifier {lexeme.value}")
+                    log(LOG_DEBG, "Found an <identifier>!")
                 elif poss == "<integer-constant>":
                     lexeme = lstream.consume_lexeme()
                     if lexeme.tokenType != tokens.TokenType.INTEGER:
@@ -63,6 +66,7 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                             lexeme.tokenType.name
                         ))
                     log(LOG_VERB, f"Parsed integer {lexeme.value}")
+                    log(LOG_DEBG, "Found an <integer-constant>!")
                 elif poss == "<string>":
                     lexeme = lstream.consume_lexeme()
                     if lexeme.tokenType != tokens.TokenType.STRING:
@@ -70,10 +74,23 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                             lexeme.tokenType.name
                         ))
                     log(LOG_VERB, f"Parsed string {lexeme.value}")
+                    log(LOG_DEBG, "Found a <string>!")
                 elif poss == "<floating-constant>":
-                    pass
+                    lexeme = lstream.consume_lexeme()
+                    if lexeme.tokenType != tokens.TokenType.FLOAT:
+                        raise SyntaxError("Expected float, got %s" % (
+                            lexeme.tokenType.name
+                        ))
+                    log(LOG_VERB, f"Parsed float {lexeme.value}")
+                    log(LOG_DEBG, "Found a <floating-constant>!")
                 elif poss == "<boolean-constant>":
-                    pass
+                    lexeme = lstream.consume_lexeme()
+                    if lexeme.tokenType != tokens.TokenType.BOOL:
+                        raise SyntaxError("Expected bool, got %s" % (
+                            lexeme.tokenType.name
+                        ))
+                    log(LOG_VERB, f"Parsed bool {lexeme.value}")
+                    log(LOG_DEBG, "Found a <boolean-constant>!")
                 elif poss.endswith("}?"):
                     try:
                         lst = lstream.copy()
@@ -152,22 +169,22 @@ def parse(lstream: lexer.LexemeStream) -> AST:
     root.add_child(n)
     return root
 
-def pretty_print(ast: AST_Node | AST, prefix=""):
+def pretty_print(ast: AST_Node | AST, prefix="", lvl=LOG_VERB):
     """Pretty prints a syntax tree"""
     t_char = "├── "
     i_char = "│   "
     l_char = "└── "
     empty  = "    "
     if prefix == "":
-        log(LOG_VERB, ast.name)
+        log(lvl, ast.name)
     children = ast.get_children()
     for ast_node in children:
         if ast_node is children[-1]:
             # last child
             pref = prefix + l_char
-            log(LOG_VERB, pref+ast_node.name)
-            pretty_print(ast_node, prefix+empty)
+            log(lvl, pref+ast_node.name)
+            pretty_print(ast_node, prefix+empty, lvl=lvl)
         else:
             pref = prefix + t_char
-            log(LOG_VERB, pref+ast_node.name)
-            pretty_print(ast_node, prefix+i_char)
+            log(lvl, pref+ast_node.name)
+            pretty_print(ast_node, prefix+i_char, lvl=lvl)
