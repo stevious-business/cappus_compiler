@@ -57,6 +57,8 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                         raise SyntaxError("Expected identifier, got %s" % (
                             lexeme.tokenType.name
                         ))
+                    n = AST_Terminal(node, lexeme) # construct terminal
+                    node.add_child(n)
                     log(LOG_VERB, f"Parsed identifier {lexeme.value}")
                     log(LOG_DEBG, "Found an <identifier>!")
                 elif poss == "<integer-constant>":
@@ -65,6 +67,8 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                         raise SyntaxError("Expected integer, got %s" % (
                             lexeme.tokenType.name
                         ))
+                    n = AST_Terminal(node, lexeme) # construct terminal
+                    node.add_child(n)
                     log(LOG_VERB, f"Parsed integer {lexeme.value}")
                     log(LOG_DEBG, "Found an <integer-constant>!")
                 elif poss == "<string>":
@@ -73,6 +77,8 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                         raise SyntaxError("Expected string, got %s" % (
                             lexeme.tokenType.name
                         ))
+                    n = AST_Terminal(node, lexeme) # construct terminal
+                    node.add_child(n)
                     log(LOG_VERB, f"Parsed string {lexeme.value}")
                     log(LOG_DEBG, "Found a <string>!")
                 elif poss == "<floating-constant>":
@@ -81,6 +87,8 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                         raise SyntaxError("Expected float, got %s" % (
                             lexeme.tokenType.name
                         ))
+                    n = AST_Terminal(node, lexeme) # construct terminal
+                    node.add_child(n)
                     log(LOG_VERB, f"Parsed float {lexeme.value}")
                     log(LOG_DEBG, "Found a <floating-constant>!")
                 elif poss == "<boolean-constant>":
@@ -89,6 +97,8 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                         raise SyntaxError("Expected bool, got %s" % (
                             lexeme.tokenType.name
                         ))
+                    n = AST_Terminal(node, lexeme) # construct terminal
+                    node.add_child(n)
                     log(LOG_VERB, f"Parsed bool {lexeme.value}")
                     log(LOG_DEBG, "Found a <boolean-constant>!")
                 elif poss.endswith("}?"):
@@ -144,6 +154,10 @@ def genASTNode(parent, grammar: dict, generator_type: str,
             log(LOG_VERB, f">> Success for rule '{generator_type}' index {i}")
             log_dedent()
             log(LOG_BASE, "Caching successful result!")
+            if node.count_children() == 1:
+                cache.set((generator_type, ls.pointer), (node[0], lstream.pointer))
+                ls.update(lstream)
+                return node[0]
             cache.set((generator_type, ls.pointer), (node, lstream.pointer))
             ls.update(lstream)
             return node

@@ -11,6 +11,12 @@ class AST_Node:
     
     def get_children(self):
         return self.children
+    
+    def count_children(self):
+        return len(self.children)
+
+    def __getitem__(self, item):
+        return self.children[item]
 
 class AST_Terminal(AST_Node):
     def __init__(self, parent: AST_Node, lexeme: tokens.Lexeme):
