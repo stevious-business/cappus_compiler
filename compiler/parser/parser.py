@@ -39,6 +39,7 @@ def genASTNode(parent, grammar: dict, generator_type: str,
                     next_lexeme.value
                 ))
         # Valid, continue
+        node = AST_Node(generator_type, parent, [])
         n = AST_Terminal(node, next_lexeme) # construct terminal
         return n
     log(LOG_DEBG, f"Going into {generator_type}...")

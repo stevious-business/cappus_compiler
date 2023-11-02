@@ -1,0 +1,4 @@
+main:
+    RET
+strncat:
+    RET

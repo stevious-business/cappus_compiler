@@ -72,8 +72,17 @@ class CPL2CAL:
     def function_definition(self,
             children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
         type_spec, name, op, *args, cp, c_statement = children
+        name = name.lexeme.value
+        if name == "main":
+            if args:
+                log(LOG_WARN,
+                    "You are using arguments for the entrypoint 'main'.")
+                log(LOG_WARN,
+                    "When the translation unit is executed by the host\
+machine, these may not be provided.")
+                log(LOG_WARN, "This can lead to undefined behavior.")
         assembly = asm.Assembly([
-            f"{name.lexeme.value}:",
+            f"{name}:",
         ])
         assembly.mark("f-d")
         assembly.indent()
@@ -85,6 +94,3 @@ class CPL2CAL:
             "Finished generating assembly for <function-definition>"
         )
         return assembly
-
-    def export(self):
-        pass

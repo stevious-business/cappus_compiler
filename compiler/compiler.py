@@ -33,7 +33,7 @@ def compile(file):
         log(LOG_DEBG, fmt(lexeme))
     log(LOG_DEBG, "Done!")
 
-    DBG.set(LOG_INFO)
+    DBG.set(LOG_BASE)
     log(LOG_INFO, "Parsing...")
     log(LOG_DEBG, "Building AST...")
     syntax_tree: ast.AST = parser.parse(lstream)

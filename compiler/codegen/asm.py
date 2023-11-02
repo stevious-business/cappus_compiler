@@ -27,3 +27,8 @@ class Assembly:
         for line in asm.lines.copy():
             self.add_line("    "*self.indenture+line)
         return self
+    
+    def export(self, f):
+        for line in self.lines:
+            f.write(line)
+            f.write("\n")

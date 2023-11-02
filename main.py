@@ -21,11 +21,14 @@ if __name__ == "__main__":
         
         with open(fp) as f:
             ending = search(r"\.[a-zA-Z]+$", f.name).group()
+            file_pref = fp.removesuffix(ending)
             if not ending == ".cpl":
                 # cappus programming language lmao
                 log(LOG_WARN, "Your program is not a .cpl file!")
                 log(LOG_WARN, f"Expected .cpl file, got {ending}")
             assembly = compile(f)
+        with open(file_pref+".cal", "w") as f:
+            assembly.export(f)
 
     except KeyboardInterrupt:
         print()
