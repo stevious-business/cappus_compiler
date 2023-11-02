@@ -22,7 +22,7 @@ if __name__ == "__main__":
             if not f.name.endswith(".cpl"):
                 # cappus programming language lmao
                 log(LOG_WARN, "Your program is not a .cpl file!")
-            compile(f)
+            assembly = compile(f)
 
     except KeyboardInterrupt:
         print()

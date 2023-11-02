@@ -31,6 +31,7 @@ class TokenList:
         "str",
         "float",
         "bool",
+        "void",
         "if",
         "else",
         "for",
@@ -93,6 +94,7 @@ class Lexeme:
         self.tokenType = tokenType
         self.value = value
         self.src = src
+        self.ptr = self.src.ptr
         self.stamp = src.get_pos()
 
 def from_string(str_: str):

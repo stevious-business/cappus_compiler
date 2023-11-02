@@ -15,15 +15,20 @@ class Source:
         if self.ptr < self.length:
             c: str = self.chars[self.ptr+depth-1]
         else:
+            if fp:
+                # if we were coming from peek function,
+                # we must increment pointer because
+                # peek function subsequently decrements it
+                self.ptr += 1
             return "EOF"
         self.ptr += 1
-        if not fp:
+        if not fp: # fp = from peek
             if c == "\n":
                 self.line += 1
                 self.col = 0
             else:
                 self.col += 1
-        if not com:
+        if not com: # not (yet) in a comment
             if c == "/":
                 if self.peek() == "/":
                     while self.peek(com=True) != "\n":

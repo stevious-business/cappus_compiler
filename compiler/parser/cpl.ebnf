@@ -13,6 +13,7 @@
 
 <type-name> ::= int | str
             | float | bool
+            | void
 
 <arg-list> ::= <arg> {<extra-arg>}*
 
@@ -26,7 +27,11 @@
             | <selection-statement>
             | <iteration-statement>
             | <expression> ;
-            | break ;
+            | <jmp-keyword> ;
+
+<jmp-keyword> ::= break
+                | return {<assignment-expression>}?
+                | continue
 
 <selection-statement> ::= if ( <expression> ) <compound-statement> else <statement>
                         | if ( <expression> ) <compound-statement>
