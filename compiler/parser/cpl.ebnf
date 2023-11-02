@@ -19,7 +19,7 @@
 
 <extra-arg> ::= , <arg>
 
-<arg> ::= <scoped-type-specifier> <identifier>
+<arg> ::= <type-specifier> <identifier>
 
 <compound-statement> ::= { {<statement>}* }
 

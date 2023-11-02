@@ -1,5 +1,6 @@
 from os.path import exists
 from sys import exit
+from re import search
 
 from compiler import compile
 from locals import *
@@ -19,9 +20,11 @@ if __name__ == "__main__":
             fp = input("File path: ")
         
         with open(fp) as f:
-            if not f.name.endswith(".cpl"):
+            ending = search(r"\.[a-zA-Z]+$", f.name).group()
+            if not ending == ".cpl":
                 # cappus programming language lmao
                 log(LOG_WARN, "Your program is not a .cpl file!")
+                log(LOG_WARN, f"Expected .cpl file, got {ending}")
             assembly = compile(f)
 
     except KeyboardInterrupt:

@@ -4,17 +4,12 @@ from .codegen import asm
 
 from .codegen.CPL.generators import CPL2CAL
 
-from cfclogger import log
+from cfclogger import *
 from locals import *
 
 def fmt(lexeme: lexer.tokens.Lexeme):
     return sfmt(lexeme.tokenType.name, 15)+sfmt(lexeme.value, 25) \
             +lexeme.stamp
-
-def sfmt(str_: str, len_: int):
-    strlen = len(str_)
-    remain = len_ - strlen
-    return str_ + remain * "."
 
 def compile(file):
     global DBG

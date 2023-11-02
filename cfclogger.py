@@ -8,6 +8,11 @@ log_indent_count = 0
 
 log_spacing = 4
 
+def sfmt(str_: str, len_: int, ws=False):
+    strlen = len(str_)
+    remain = len_ - strlen
+    return str_ + remain * (" " if ws else ".")
+
 def ts() -> str:
     global launch
     odd_len_text = f"{round(perf_counter()-launch, 4)}"
