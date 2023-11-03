@@ -43,9 +43,14 @@ def compile(file):
 
     DBG.set(LOG_VERB)
     log(LOG_INFO, "Commencing code generation...")
-    assembly: asm.Assembly = CPL2CAL(syntax_tree).generate()
+    cal = CPL2CAL(syntax_tree)
+    assembly: asm.Assembly = cal.generate()
     log(LOG_INFO, "Done!")
     
+    log(LOG_DEBG, "Final Symbol Table:")
+    cal.symbol_table.print(LOG_DEBG)
+    log(LOG_DEBG, "End")
+
     log(LOG_DEBG, "Generated assembly:")
     for line in assembly.lines:
         log(LOG_DEBG, line)
