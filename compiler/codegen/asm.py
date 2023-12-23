@@ -1,5 +1,6 @@
 from cfclogger import *
 
+# Assembly, partially in the form of TAC (no register allocation)
 class Assembly:
     def __init__(self, lines=[], indenture=0):
         self.lines = lines.copy()
@@ -9,6 +10,12 @@ class Assembly:
         self.indenture = indenture
         self.marked = False
         self.marker = "0"
+    
+    def __getitem__(self, item):
+        try:
+            return self.lines[item]
+        except IndexError:
+            return ""
     
     def add_line(self, line):
         log(LOG_VERB,

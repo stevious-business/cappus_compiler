@@ -1,0 +1,10 @@
+main:
+    LDI T0, 2
+    LDI T1, 3
+    LDI T2, 4
+    LDI T3, 4
+    SBI T3, T3, 2
+    DIV T2, T2, T3
+    MLT T1, T1, T2
+    ADD T0, T0, T1
+    RET

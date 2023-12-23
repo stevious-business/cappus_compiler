@@ -4,3 +4,6 @@ int main() {
 
 str *strncat(str *a, str *b, int len) {
 }
+
+void test(bool a) {
+}

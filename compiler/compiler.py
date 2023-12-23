@@ -2,7 +2,7 @@ from .lexer import lexer, source
 from .parser import parser, ast
 from .codegen import asm
 
-from .codegen.CPL.generators import CPL2CAL
+from .codegen.frontend.CPL.generators import CPL2CAL
 
 from cfclogger import *
 from locals import *
@@ -33,7 +33,7 @@ def compile(file):
         log(LOG_DEBG, fmt(lexeme))
     log(LOG_DEBG, "Done!")
 
-    DBG.set(LOG_BASE)
+    DBG.set(LOG_DEBG)
     log(LOG_INFO, "Parsing...")
     log(LOG_DEBG, "Building AST...")
     syntax_tree: ast.AST = parser.parse(lstream)
@@ -41,7 +41,7 @@ def compile(file):
     parser.pretty_print(syntax_tree, lvl=LOG_DEBG)
     log(LOG_DEBG, "Done!")
 
-    DBG.set(LOG_VERB)
+    DBG.set(LOG_BASE)
     log(LOG_INFO, "Commencing code generation...")
     cal = CPL2CAL(syntax_tree)
     assembly: asm.Assembly = cal.generate()

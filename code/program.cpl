@@ -22,7 +22,7 @@ int main() {
             y = x - 4;
             z = 'a';
             f = 'a';
-            subglobal str f = z;
+            subglobal str *f = z;
 
         }
     }

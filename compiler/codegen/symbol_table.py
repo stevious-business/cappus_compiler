@@ -11,7 +11,7 @@ class SymbolTypes(Enum):
     DATATYPE = auto()
 
 class Symbol:
-    def __init__(self, type_, name, dt="void"):
+    def __init__(self, type_, name, dt="void", t=-1):
         self.type_ = type_
         self.liveness_begin = None
         self.liveness_end = None
@@ -19,9 +19,14 @@ class Symbol:
         self.name = name
         self.scope = None
         self.datatype = dt
+        self.var_t = t
+        log(LOG_BASE, f"New symbol <{str(self)}>!")
     
     def __str__(self):
-        return f"{self.type_.name} - {self.name}"
+        if self.type_ is SymbolTypes.VARIABLE:
+            return "%s %s - %s [T%d]" % (self.type_.name, self.datatype,
+                self.name, self.var_t)
+        return f"{self.type_.name} {self.datatype} - {self.name}"
 
 class SymbolTable:
     def __init__(self):

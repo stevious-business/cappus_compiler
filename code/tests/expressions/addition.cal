@@ -1,0 +1,5 @@
+main:
+    LDI T0, 3
+    LDI T1, 3
+    LDI T2, 39
+    RET

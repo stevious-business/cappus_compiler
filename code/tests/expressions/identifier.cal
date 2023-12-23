@@ -1,0 +1,8 @@
+main:
+    ADI T3, T0, 3
+    ADI T4, T1, 1
+    ADI T4, T1, 4
+    SUB T5, T0, T4
+    ADI T6, T5, 2
+    SUB T7, T4, T6
+    RET
