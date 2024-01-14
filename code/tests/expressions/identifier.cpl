@@ -13,4 +13,13 @@ int main() {
 
     fml
     */
+    /*
+    PLAN:
+    - for every rule, try and satisfy a non-recursive
+      option
+    - if that fails, then return failure
+    - otherwise attempt to generate a new node with
+      each recursive option, using the previous result
+      as the recursive part
+    */
 }

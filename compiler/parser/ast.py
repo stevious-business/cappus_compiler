@@ -17,6 +17,11 @@ class AST_Node:
 
     def __getitem__(self, item):
         return self.children[item]
+    
+    def as_one(self): # Return exactly one node, and child if possible
+        if len(self.children) == 1:
+            return self.children[0]
+        return self
 
 class AST_Terminal(AST_Node):
     def __init__(self, parent: AST_Node, lexeme: tokens.Lexeme):

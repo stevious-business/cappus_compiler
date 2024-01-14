@@ -1,0 +1,17 @@
+pseudocode for generating an ast node
+args:
+- str generator_type
+- LexemeStream ls
+- dict grammar
+
+return:
+1. SyntaxError
+2. AST_Node
+
+genAstNode:
+	if cache_result = check_cache(ls, generator_type) return cache_result
+	if generator_type not in rule_names {
+		// terminal like "identifier" or "integer-constant"
+		n = Terminal(name=generator_type, lexeme=ls.consume_lexeme())
+		return n
+	}
