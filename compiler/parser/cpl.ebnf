@@ -72,7 +72,7 @@
                            | <logical-and-expression> && <inclusive-or-expression>
 
 <inclusive-or-expression> ::= <exclusive-or-expression>
-                            | <inclusive-or-expression> | <exclusive-or-expression>
+                            | <inclusive-or-expression> \| <exclusive-or-expression>
 
 <exclusive-or-expression> ::= <and-expression>
                             | <exclusive-or-expression> ^ <and-expression>

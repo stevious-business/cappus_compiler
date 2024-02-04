@@ -15,3 +15,16 @@ genAstNode:
 		n = Terminal(name=generator_type, lexeme=ls.consume_lexeme())
 		return n
 	}
+	else {
+		rule = grammar[generator_type]
+		recursive_possibilities, non_recursive_possibilities = rule
+		for rule_possibility in rule {
+			test_node, test_ls = Node(), ls.copy()
+			genRulePossibility(grammar, rule_possibility, test_ls, test_node)
+			if success {
+				update_cache()
+				return test_node
+			}
+		}
+		raise fail
+	}

@@ -21,6 +21,8 @@ class AST_Node:
     def as_one(self): # Return exactly one node, and child if possible
         if len(self.children) == 1:
             return self.children[0]
+        for i, child in enumerate(self.children):
+            self.children[i] = child.as_one()
         return self
 
 class AST_Terminal(AST_Node):

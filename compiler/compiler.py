@@ -41,7 +41,7 @@ def compile(file):
     parser.pretty_print(syntax_tree, lvl=LOG_DEBG)
     log(LOG_DEBG, "Done!")
 
-    """DBG.set(LOG_BASE)
+    DBG.set(LOG_BASE)
     log(LOG_INFO, "Commencing code generation...")
     cal = CPL2CAL(syntax_tree)
     assembly: asm.Assembly = cal.generate()
@@ -58,4 +58,4 @@ def compile(file):
     
     log(LOG_INFO, "Compilation successful!")
 
-    return assembly"""
+    return assembly

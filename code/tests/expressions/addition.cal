@@ -1,5 +1,9 @@
 main:
     LDI T0, 3
-    LDI T1, 3
-    LDI T2, 39
+    RET
+subtraction_order:
+    LDI T0, 0
+    RET
+parens:
+    LDI T0, -2
     RET

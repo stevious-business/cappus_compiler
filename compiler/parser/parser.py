@@ -1,3 +1,5 @@
+from functools import wraps
+
 from .reader import load_ebnf
 from .ast import AST, AST_Node, AST_Terminal
 
@@ -9,12 +11,30 @@ from .cache import Cache
 
 cache = Cache()
 
-def genPossSet(grammar, lstream, possSet, node, possPreset={}):
+def logAutoIndent(function):
+    @wraps(function)
+    def inner(*args, **kwargs):
+        log_indent()
+        try:
+            r = function(*args, **kwargs)
+        except Exception as e:
+            log_dedent()
+            raise e
+        else:
+            log_dedent()
+            return r
+    return inner
+
+@logAutoIndent
+def generate_rule(grammar, lstream, possSet, node, possPreset={}):
     global cache
-    # possPreset: dict[str: (ls, node)]
+    # possPreset: dict[str: (lsptr, node)]
     for poss in possSet: # poss - all are true
         if possPreset.get(poss, None) is not None:
-            node.add_child(possPreset[poss])
+            # preset is there
+            node.add_child(possPreset[poss][1])
+            possPreset[poss][1].parent = node
+            lstream.pointer = possPreset[poss][0]
             continue
         if poss == "<identifier>":
             lexeme = lstream.consume_lexeme()
@@ -112,8 +132,17 @@ def genPossSet(grammar, lstream, possSet, node, possPreset={}):
             n = AST_Terminal(node, next_lexeme) # construct terminal
             node.add_child(n)
 
-def genASTNode(parent, grammar: dict, generator_type: str,
-           ls: lexer.LexemeStream) -> AST_Node:
+def obtain_subsets(generator_type: str, rule_set):
+    non_recursive_subSets = []
+    recursive_subSets = []
+    for possSet in rule_set:
+        if possSet[0] == generator_type:
+            recursive_subSets.append(possSet)
+        else:
+            non_recursive_subSets.append(possSet)
+    return non_recursive_subSets, recursive_subSets
+
+def check_cache(generator_type, ls: lexer.LexemeStream):
     global cache
     cache_entry = cache[(generator_type, ls.pointer)]
     if cache_entry is not None:
@@ -125,6 +154,8 @@ def genASTNode(parent, grammar: dict, generator_type: str,
             node, ptr = cache_entry
             ls.pointer = ptr
             return node
+
+def gen_terminal(generator_type, grammar, ls, parent):
     if generator_type not in grammar.keys():
         # terminal
         rule_type = tokens.from_string(generator_type)
@@ -145,78 +176,66 @@ def genASTNode(parent, grammar: dict, generator_type: str,
         node = AST_Node(generator_type, parent, [])
         n = AST_Terminal(node, next_lexeme) # construct terminal
         return n
+
+def genASTNode(parent, grammar: dict, generator_type: str,
+           ls: lexer.LexemeStream) -> AST_Node:
+
     log(LOG_DEBG, f"Going into {generator_type}...")
-    log_indent()
+
+    if ret := check_cache(generator_type, ls): return ret
+
+    if ret := gen_terminal(generator_type, grammar, ls, parent): return ret
+    
     rule_set = grammar[generator_type]
-    non_recursive_possSets = []
-    recursive_possSets = []
-    for possSet in rule_set:
-        if generator_type in possSet:
-            recursive_possSets.append(possSet)
-        else:
-            non_recursive_possSets.append(possSet)
-    if recursive_possSets != []:
-        log(LOG_VERB, f"Recursive generator type {generator_type}")
-        for nr_possSet in non_recursive_possSets:
-            lstream = ls.copy()
-            node = AST_Node(generator_type, parent, [])
-            genPossSet(grammar, lstream, nr_possSet, node)
-            valid = False
-            while True:
-                try:
-                    for r_possSet in recursive_possSets:
-                        try:
-                            ret_node = AST_Node(generator_type, parent, [])
-                            genPossSet(grammar, lstream, r_possSet, ret_node,
-                                    {generator_type: node})
-                            node = ret_node
-                            valid = True
-                            break
-                        except SyntaxError:
-                            continue
-                except SyntaxError:
-                    log(LOG_DEBG, f"Exiting {generator_type}!")
-                    if not valid:
-                        log(LOG_VERB, f">> Failed for rule '{generator_type}' [210]")
-                    else:
-                        log(LOG_VERB, f">> R Success for rule '{generator_type}'")
-                        ls.update(lstream)
-                    log_dedent()
-                    return node
-                if not valid:
-                    log(LOG_DEBG, f"Exiting {generator_type}!")
-                    log(LOG_VERB, f">> NR Success for rule '{generator_type}' [211]")
-                    print(ls.pointer)
-                    log_dedent()
-                    return node
-        log(LOG_DEBG, f"Exiting {generator_type}!")
-        log(LOG_VERB, f">> Failed for rule '{generator_type}' [212]")
-        log_dedent()
-        cache.set((generator_type, ls.pointer), 0)
-        raise SyntaxError("No valid recursive path! [213]")
+    non_recursive_subSets, recursive_subSets = obtain_subsets(generator_type,
+                                                              rule_set)
+    
+    recursiveNode: AST_Node = None
     for i, possSet in enumerate(rule_set):
-        # possSet - one is true
+        if possSet not in non_recursive_subSets: continue
         lstream = ls.copy()
         node = AST_Node(generator_type, parent, [])
         try:
-            genPossSet(grammar, lstream, possSet, node)
-        except SyntaxError as e:
-            log(LOG_VERB, f"Failed for '{rule_set.index(possSet)}' ({e.msg})")
+            generate_rule(grammar, lstream, possSet, node)
+        except SyntaxError:
+            # pf = partial failure
+            log(LOG_VERB, f"[PF] Type {generator_type}, opt {i}")
         else:
-            log(LOG_VERB, f"Success for '{rule_set.index(possSet)}'")
-            log(LOG_DEBG, f"Exiting {generator_type}!")
-            log(LOG_VERB, f">> Success for rule '{generator_type}' index {i}")
-            log_dedent()
-            log(LOG_BASE, "Caching successful result!")
-            cache.set((generator_type, ls.pointer),
-                      (node.as_one(), lstream.pointer))
-            ls.update(lstream)
-            return node
-    log(LOG_DEBG, f"Exiting {generator_type}!")
-    log(LOG_VERB, f">> Failed for rule '{generator_type}'")
-    log_dedent()
-    cache.set((generator_type, ls.pointer), 0)
-    raise SyntaxError("No valid path!")
+            recursiveNode = node
+            break
+    
+    if recursiveNode is None:
+        log(LOG_DEBG, f"[F] Type {generator_type}, ptr {ls.pointer}")
+        cache.set((generator_type, ls.pointer), 0)
+        raise SyntaxError("No valid path!")
+    
+    success = True
+    while success: # loop that will perform the recursion
+        success = False
+        for i, possSet in enumerate(rule_set):
+            if possSet not in recursive_subSets: continue
+            # try to loop over recursive possibilities to find one that works
+            lstream2 = ls.copy()
+            parent_node = AST_Node(generator_type, parent, [])
+            try:
+                generate_rule(grammar, lstream2, possSet, parent_node,
+                    {generator_type: (lstream.pointer, recursiveNode)})
+            except SyntaxError:
+                # pf = partial failure
+                log(LOG_VERB, f"[PF] Type {generator_type}, opt {i}")
+            else:
+                recursiveNode = parent_node
+                success = True
+                lstream.update(lstream2)
+                break
+    log(LOG_DEBG,
+        f"[S] Type {generator_type}, opt {i}, ptr {lstream.pointer}")
+    log(LOG_BASE, "Caching successful result!")
+    cache.set((generator_type, ls.pointer),
+                (recursiveNode.as_one(), lstream.pointer))
+    ls.update(lstream)
+    return recursiveNode.as_one()
+
 
 def parse(lstream: lexer.LexemeStream) -> AST:
     global cache

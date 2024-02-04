@@ -1,4 +1,11 @@
 int main() {
     1 + 2;
-    
+}
+
+int subtraction_order() {
+    1 - 2 + 1;
+}
+
+int parens() {
+    1 - (2 + 1);
 }
