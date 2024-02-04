@@ -1,5 +1,3 @@
-from functools import wraps
-
 from .reader import load_ebnf
 from .ast import AST, AST_Node, AST_Terminal
 
@@ -10,20 +8,6 @@ from cfclogger import *
 from .cache import Cache
 
 cache = Cache()
-
-def logAutoIndent(function):
-    @wraps(function)
-    def inner(*args, **kwargs):
-        log_indent()
-        try:
-            r = function(*args, **kwargs)
-        except Exception as e:
-            log_dedent()
-            raise e
-        else:
-            log_dedent()
-            return r
-    return inner
 
 @logAutoIndent
 def generate_rule(grammar, lstream, possSet, node, possPreset={}):

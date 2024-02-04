@@ -1,5 +1,7 @@
 from time import perf_counter
 
+from functools import wraps
+
 from locals import *
 
 launch = perf_counter()
@@ -52,3 +54,17 @@ def log(level, text, nts=False, **kwargs):
             + f"{level_colors[level]+level_texts[level]}\033[0m]"
         print(f"{pre} {' '*log_indent_count} \
 {level_colors[level]}{text}\033[0m", **kwargs)
+
+def logAutoIndent(function):
+    @wraps(function)
+    def inner(*args, **kwargs):
+        log_indent()
+        try:
+            r = function(*args, **kwargs)
+        except Exception as e:
+            log_dedent()
+            raise e
+        else:
+            log_dedent()
+            return r
+    return inner
