@@ -1,3 +1,5 @@
+from re import findall
+
 from .lexer import lexer, source
 from .parser import parser, ast
 from .codegen import asm
@@ -13,6 +15,8 @@ def fmt(lexeme: lexer.tokens.Lexeme):
 
 def compile(file):
     global DBG
+
+    DBG.set_floor(LOG_DEBG)
     
     DBG.set(LOG_VERB)
 
@@ -48,12 +52,23 @@ def compile(file):
     log(LOG_INFO, "Done!")
     
     log(LOG_DEBG, "Final Symbol Table:")
+    log_indent()
     cal.symbol_table.print(LOG_DEBG)
+    log_dedent()
     log(LOG_DEBG, "End")
 
     log(LOG_DEBG, "Generated assembly:")
     for line in assembly.lines:
-        log(LOG_DEBG, line)
+        s: str = line
+        potentially_replaceables = findall(r"T([0-9]+)", line)
+        for replaceable in potentially_replaceables:
+            try:
+                sym = cal.symbol_table.by_t(int(replaceable), False)
+                var_name = sym.name
+                s = s.replace("T"+replaceable, var_name)
+            except KeyError:
+                continue
+        log(LOG_DEBG, s)
     log(LOG_DEBG, "End")
     
     log(LOG_INFO, "Compilation successful!")

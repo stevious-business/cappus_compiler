@@ -220,7 +220,6 @@ def genASTNode(parent, grammar: dict, generator_type: str,
     ls.update(lstream)
     return recursiveNode.as_one()
 
-
 def parse(lstream: lexer.LexemeStream) -> AST:
     global cache
 

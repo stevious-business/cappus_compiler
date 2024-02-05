@@ -8,11 +8,12 @@ from compiler.codegen import asm
 
 class CPL2CAL:
     def __init__(self, ast_: ast.AST, symbol_table: st.SymbolTable = None,
-                 scope=None, t=-1):
+                 scope=None, t=-1, parent=None):
         self.t = t
         self.result_t = -1
         self.symbol_table = symbol_table
         self.scope = scope
+        self.parent = parent
         self.assembly = asm.Assembly()
         if self.symbol_table is None:
             self.symbol_table = st.SymbolTable()
@@ -30,6 +31,7 @@ class CPL2CAL:
             return self.__getattribute__(item[1:-1].replace("-", "_"))
         return self.__getattribute__(item)
 
+    @logAutoIndent
     def generate(self):
         log(LOG_DEBG, f"Generating on {self.rootType}")
         self.assembly = self[self.rootType](self.ast.children)
@@ -37,7 +39,6 @@ class CPL2CAL:
     
     def root(self, children) -> asm.Assembly:
         ass = asm.Assembly()
-        ass.mark("root")
         for child in children:
             child_ass = CPL2CAL(child, self.symbol_table, t=self.t).generate()
             ass = ass.fuse(child_ass)
@@ -90,7 +91,6 @@ machine, these may not be provided.")
         assembly = asm.Assembly([
             f"{name}:",
         ])
-        assembly.mark("f-d")
         assembly.indent()
         cs_ass = CPL2CAL(c_statement, self.symbol_table,
                          scope=self.symbol_table.by_name(name), t=self.t
@@ -233,6 +233,9 @@ machine, these may not be provided.")
             type_node, name_node, initialization_node = children
             type_ = self.dt_from_ast(type_node)
             name = name_node.lexeme.value
+            generator = CPL2CAL(
+                initialization_node, self.symbol_table, self.scope, self.t
+            )
         self.t += 1
         self.symbol_table.add_symbol(st.Symbol(
                 st.SymbolTypes.VARIABLE, name, type_, self.t

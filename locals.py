@@ -10,9 +10,16 @@ SW_NAME = "CFC" # Compiler For Cappus
 class DBGLVL:
     def __init__(self, lvl):
         self.lvl = lvl
+        self.floor = 0
     
     def set(self, lvl):
-        self.lvl = lvl
+        if lvl >= self.floor:
+            self.lvl = lvl
+    
+    def set_floor(self, lvl):
+        self.floor = lvl
+        if self.lvl < lvl:
+            self.lvl = lvl
 
     def get(self):
         return self.lvl

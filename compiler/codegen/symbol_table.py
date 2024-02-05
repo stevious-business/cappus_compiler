@@ -35,13 +35,22 @@ class SymbolTable:
     def add_symbol(self, symbol:Symbol):
         self.entries.append(symbol)
 
-    def by_name(self, name):
+    def by_name(self, name, should_log_fail=True):
         for symbol in self.entries:
             if symbol.name == name:
                 return symbol
-        log(LOG_FAIL, f"Failed to find symbol {name} in table")
+        if should_log_fail:
+            log(LOG_FAIL, f"Failed to find symbol {name} in table qwq")
         raise KeyError(name)
     
+    def by_t(self, t, should_log_fail=True):
+        for symbol in self.entries:
+            if symbol.var_t == t:
+                return symbol
+        if should_log_fail:
+            log(LOG_FAIL, f"Failed to find symbol T{t} in table TwT")
+        raise KeyError(t)
+
     def print(self, log_level):
         for symbol in self.entries:
             log(log_level, str(symbol))

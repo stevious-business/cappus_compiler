@@ -10,6 +10,18 @@ log_indent_count = 0
 
 log_spacing = 4
 
+class Timer:
+    def __init__(self):
+        self._timer = perf_counter()
+    
+    def reset(self):
+        self._timer = perf_counter()
+
+    def time_since_launch(self):
+        return perf_counter() - self._timer
+
+timer = Timer()
+
 def sfmt(str_: str, len_: int, ws=False):
     strlen = len(str_)
     remain = len_ - strlen
