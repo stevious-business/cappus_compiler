@@ -4,13 +4,17 @@ from re import search
 
 from compiler import compile
 from locals import *
-from cfclogger import log, timer
+from cfclogger import log, timer, setup_logger, exit_logger
 
 if __name__ == "__main__":
+
+    setup_logger(True)
 
     print()
     log(LOG_INFO, "Launching CFC compiler!")
     print()
+
+    return_code = 0
 
     try:
 
@@ -35,10 +39,13 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print()
         log(LOG_FAIL, "Interrupted! Exiting...")
+        return_code = 2
     except Exception as e:
         log(LOG_FAIL, f"Critical Error! {str(e)}")
-        exit(1)
+        return_code = 1
     else:
         t = round(timer.time_since_launch(), 2)
         log(LOG_INFO, f"Job done in {t}s!")
-        exit(0)
+    finally:
+        exit_logger()
+        exit(return_code)

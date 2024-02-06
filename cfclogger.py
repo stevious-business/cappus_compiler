@@ -10,6 +10,8 @@ log_indent_count = 0
 
 log_spacing = 4
 
+log_file = None
+
 class Timer:
     def __init__(self):
         self._timer = perf_counter()
@@ -40,7 +42,17 @@ def log_dedent():
     global log_indent_count
     log_indent_count -= log_spacing
 
+def setup_logger(LOG_TO_FILE=True):
+    global log_file
+    log_file = open("compilation.log", "w", encoding="utf-8")
+
+def exit_logger():
+    global log_file
+    log_file.flush()
+    log_file.close()
+
 def log(level, text, nts=False, **kwargs):
+    global log_file
     if level >= DBG.get():
         level_colors = {
             LOG_BASE: "\033[90m",
@@ -61,11 +73,16 @@ def log(level, text, nts=False, **kwargs):
         if nts: # No time stamp (no prefix)
             print(f"{level_colors[level]}{text}\033[0m", **kwargs)
             return
+        t = ts()
         pre = f"[\033[36m{SW_NAME}\033[0m::" \
-            + f"\033[32m{ts()}\033[0m::" \
+            + f"\033[32m{t}\033[0m::" \
             + f"{level_colors[level]+level_texts[level]}\033[0m]"
-        print(f"{pre} {' '*log_indent_count} \
-{level_colors[level]}{text}\033[0m", **kwargs)
+        final_text = f"{pre} {' '*log_indent_count} \
+{level_colors[level]}{text}\033[0m"
+        uncolored_pref = f"[{SW_NAME}::{t}::{level_texts[level]}]"
+        uncolored_text = f"{uncolored_pref}{' '*log_indent_count}{text}"
+        print(final_text, **kwargs)
+        log_file.write(uncolored_text+"\n")
 
 def logAutoIndent(function):
     @wraps(function)

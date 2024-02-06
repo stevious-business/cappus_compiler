@@ -1,0 +1,112 @@
+[CFC::00000.0151::INFO]Launching CFC compiler!
+[CFC::00006.7666::INFO]Commencing code generation...
+[CFC::000006.767::BASE]New symbol <LABEL void - global>!
+[CFC::00006.7674::DEBG]    Generating on root
+[CFC::00006.7677::DEBG]        Generating on <translation-unit>
+[CFC::000006.768::DEBG]            Generating on <function-definition>
+[CFC::00006.7683::BASE]            New symbol <LABEL int - main>!
+[CFC::00006.7684::VERB]            Initializing assembly with ['main:']
+[CFC::00006.7686::DEBG]                Generating on <compound-statement>
+[CFC::00006.7687::DEBG]                    Generating on <statement>
+[CFC::00006.7689::DEBG]                        Generating on <declaration>
+[CFC::000006.769::BASE]                        New symbol <VARIABLE int - x [T0]>!
+[CFC::00006.7691::DEBG]                    Generating on <statement>
+[CFC::00006.7692::DEBG]                        Generating on <declaration>
+[CFC::00006.7693::BASE]                        New symbol <VARIABLE local int - y [T1]>!
+[CFC::00006.7694::DEBG]                    Generating on <statement>
+[CFC::00006.7695::DEBG]                        Generating on <declaration>
+[CFC::00006.7696::BASE]                        New symbol <VARIABLE float * - z [T2]>!
+[CFC::00006.7697::DEBG]                    Generating on <statement>
+[CFC::00006.7698::DEBG]                        Generating on <additive-expression>
+[CFC::00006.7699::DEBG]                            Generating on IDENTIFIER
+[CFC::0000006.77::DEBG]                            Generating on INTEGER
+[CFC::00006.7701::VERB]                            Initializing assembly with ['LDI T3, 3']
+[CFC::00006.7702::VERB]                        Initializing assembly with ['ADI T3, T0, 3']
+[CFC::00006.7704::VERB]                        Adding ADI T3, T0, 3             to marked assembly 0!
+[CFC::00006.7705::VERB]                Adding ADI T3, T0, 3             to marked assembly 0!
+[CFC::00006.7706::DEBG]                    Generating on <statement>
+[CFC::00006.7707::DEBG]                        Generating on <additive-expression>
+[CFC::00006.7708::DEBG]                            Generating on <additive-expression>
+[CFC::00006.7709::DEBG]                                Generating on <primary-expression>
+[CFC::000006.771::DEBG]                                    Generating on <additive-expression>
+[CFC::00006.7711::DEBG]                                        Generating on IDENTIFIER
+[CFC::00006.7712::DEBG]                                        Generating on INTEGER
+[CFC::00006.7713::VERB]                                        Initializing assembly with ['LDI T4, 1']
+[CFC::00006.7714::VERB]                                    Initializing assembly with ['ADI T4, T1, 1']
+[CFC::00006.7715::VERB]                                    Adding ADI T4, T1, 1             to marked assembly 0!
+[CFC::00006.7716::DEBG]                                Generating on <primary-expression>
+[CFC::00006.7717::DEBG]                                    Generating on <additive-expression>
+[CFC::00006.7718::DEBG]                                        Generating on <additive-expression>
+[CFC::00006.7719::DEBG]                                            Generating on IDENTIFIER
+[CFC::00006.7721::DEBG]                                            Generating on IDENTIFIER
+[CFC::00006.7722::VERB]                                        Initializing assembly with ['SUB T4, T0, T1']
+[CFC::00006.7723::VERB]                                        Adding SUB T4, T0, T1            to marked assembly 0!
+[CFC::00006.7724::DEBG]                                        Generating on INTEGER
+[CFC::00006.7725::VERB]                                        Initializing assembly with ['LDI T4, 4']
+[CFC::00006.7726::VERB]                                    Adding SUB T4, T0, T1            to marked assembly 0!
+[CFC::00006.7727::VERB]                                    Initializing assembly with ['ADI T5, T4, 4']
+[CFC::00006.7728::VERB]                                    Adding ADI T5, T4, 4             to marked assembly 0!
+[CFC::00006.7729::VERB]                            Adding ADI T4, T1, 1             to marked assembly 0!
+[CFC::000006.773::VERB]                            Adding SUB T4, T0, T1            to marked assembly 0!
+[CFC::00006.7731::VERB]                            Adding ADI T5, T4, 4             to marked assembly 0!
+[CFC::00006.7732::VERB]                            Initializing assembly with ['SUB T6, T4, T5']
+[CFC::00006.7733::VERB]                            Adding SUB T6, T4, T5            to marked assembly 0!
+[CFC::00006.7734::DEBG]                            Generating on INTEGER
+[CFC::00006.7735::VERB]                            Initializing assembly with ['LDI T4, 2']
+[CFC::00006.7737::VERB]                        Adding ADI T4, T1, 1             to marked assembly 0!
+[CFC::00006.7738::VERB]                        Adding SUB T4, T0, T1            to marked assembly 0!
+[CFC::00006.7739::VERB]                        Adding ADI T5, T4, 4             to marked assembly 0!
+[CFC::000006.774::VERB]                        Adding SUB T6, T4, T5            to marked assembly 0!
+[CFC::00006.7741::VERB]                        Initializing assembly with ['ADI T7, T6, 2']
+[CFC::00006.7742::VERB]                        Adding ADI T7, T6, 2             to marked assembly 0!
+[CFC::00006.7743::VERB]                Adding ADI T4, T1, 1             to marked assembly 0!
+[CFC::00006.7744::VERB]                Adding SUB T4, T0, T1            to marked assembly 0!
+[CFC::00006.7745::VERB]                Adding ADI T5, T4, 4             to marked assembly 0!
+[CFC::00006.7746::VERB]                Adding SUB T6, T4, T5            to marked assembly 0!
+[CFC::00006.7747::VERB]                Adding ADI T7, T6, 2             to marked assembly 0!
+[CFC::00006.7747::VERB]            Adding     ADI T3, T0, 3         to marked assembly 0!
+[CFC::00006.7748::VERB]            Adding     ADI T4, T1, 1         to marked assembly 0!
+[CFC::00006.7749::VERB]            Adding     SUB T4, T0, T1        to marked assembly 0!
+[CFC::000006.775::VERB]            Adding     ADI T5, T4, 4         to marked assembly 0!
+[CFC::00006.7751::VERB]            Adding     SUB T6, T4, T5        to marked assembly 0!
+[CFC::00006.7752::VERB]            Adding     ADI T7, T6, 2         to marked assembly 0!
+[CFC::00006.7753::VERB]            Initializing assembly with ['RET']
+[CFC::00006.7754::VERB]            Adding     RET                   to marked assembly 0!
+[CFC::00006.7754::DEBG]            Finished generating assembly for <function-definition>
+[CFC::00006.7755::VERB]        Adding main:                     to marked assembly t-u!
+[CFC::00006.7756::VERB]        Adding     ADI T3, T0, 3         to marked assembly t-u!
+[CFC::00006.7757::VERB]        Adding     ADI T4, T1, 1         to marked assembly t-u!
+[CFC::00006.7758::VERB]        Adding     SUB T4, T0, T1        to marked assembly t-u!
+[CFC::00006.7759::VERB]        Adding     ADI T5, T4, 4         to marked assembly t-u!
+[CFC::000006.776::VERB]        Adding     SUB T6, T4, T5        to marked assembly t-u!
+[CFC::00006.7761::VERB]        Adding     ADI T7, T6, 2         to marked assembly t-u!
+[CFC::00006.7761::VERB]        Adding     RET                   to marked assembly t-u!
+[CFC::00006.7762::DEBG]        Finished generating assembly for <translation-unit>
+[CFC::00006.7763::VERB]    Adding main:                     to marked assembly 0!
+[CFC::00006.7764::VERB]    Adding     ADI T3, T0, 3         to marked assembly 0!
+[CFC::00006.7765::VERB]    Adding     ADI T4, T1, 1         to marked assembly 0!
+[CFC::00006.7766::VERB]    Adding     SUB T4, T0, T1        to marked assembly 0!
+[CFC::00006.7767::VERB]    Adding     ADI T5, T4, 4         to marked assembly 0!
+[CFC::00006.7768::VERB]    Adding     SUB T6, T4, T5        to marked assembly 0!
+[CFC::00006.7769::VERB]    Adding     ADI T7, T6, 2         to marked assembly 0!
+[CFC::000006.777::VERB]    Adding     RET                   to marked assembly 0!
+[CFC::00006.7771::INFO]Done!
+[CFC::00006.7772::DEBG]Final Symbol Table:
+[CFC::00006.7774::DEBG]    LABEL void - global
+[CFC::00006.7775::DEBG]    LABEL int - main
+[CFC::00006.7777::DEBG]    VARIABLE int - x [T0]
+[CFC::00006.7778::DEBG]    VARIABLE local int - y [T1]
+[CFC::00006.7779::DEBG]    VARIABLE float * - z [T2]
+[CFC::00006.7781::DEBG]End
+[CFC::00006.7782::DEBG]Generated assembly:
+[CFC::00006.7786::DEBG]main:
+[CFC::00006.7788::DEBG]    ADI T3, x, 3
+[CFC::000006.779::DEBG]    ADI T4, y, 1
+[CFC::00006.7791::DEBG]    SUB T4, x, y
+[CFC::00006.7793::DEBG]    ADI T5, T4, 4
+[CFC::00006.7794::DEBG]    SUB T6, T4, T5
+[CFC::00006.7795::DEBG]    ADI T7, T6, 2
+[CFC::00006.7796::DEBG]    RET
+[CFC::00006.7798::DEBG]End
+[CFC::00006.7799::INFO]Compilation successful!
+[CFC::00006.7805::INFO]Job done in 0.04s!
