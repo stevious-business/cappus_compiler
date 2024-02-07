@@ -1,3 +1,4 @@
+from typing import Any
 from cfclogger import *
 
 from compiler.lexer import tokens
@@ -8,12 +9,12 @@ from compiler.codegen import asm
 
 class CPL2CAL:
     def __init__(self, ast_: ast.AST, symbol_table: st.SymbolTable = None,
-                 scope=None, t=-1, parent=None):
+                 scope=None, t=-1, **kwargs):
         self.t = t
         self.result_t = -1
         self.symbol_table = symbol_table
         self.scope = scope
-        self.parent = parent
+        self.kwargs = kwargs
         self.assembly = asm.Assembly()
         if self.symbol_table is None:
             self.symbol_table = st.SymbolTable()
@@ -25,6 +26,12 @@ class CPL2CAL:
         self.rootType = self.ast.name
         if isinstance(self.ast, ast.AST_Terminal):
             self.rootType = self.ast.lexeme.tokenType.name
+    
+    def __getattribute__(self, __name: str) -> Any:
+        try:
+            return super().__getattribute__(__name)
+        except AttributeError:
+            return self.kwargs[__name]
 
     def __getitem__(self, item):
         if item.startswith("<"):
@@ -33,7 +40,7 @@ class CPL2CAL:
 
     @logAutoIndent
     def generate(self):
-        log(LOG_DEBG, f"Generating on {self.rootType}")
+        log(LOG_DEBG, f"Generating on {self.rootType}, T{self.t}")
         self.assembly = self[self.rootType](self.ast.children)
         return self.assembly
     
@@ -142,8 +149,8 @@ machine, these may not be provided.")
             children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
         # Always the same
         l = CPL2CAL(children[0], self.symbol_table, self.scope, self.t)
-        r = CPL2CAL(children[2], self.symbol_table, self.scope, l.t)
         l.generate()
+        r = CPL2CAL(children[2], self.symbol_table, self.scope, l.t)
         r.generate()
         operator_symbol = children[1].lexeme.value
         op_regs = ""
@@ -172,7 +179,7 @@ machine, these may not be provided.")
             # left is immediate, imm-format if adding
             if operator_symbol == "+":
                 self.t = r.t + 1
-                self.result_t = r.t
+                self.result_t = self.t
                 value = int(l.assembly.lines[-1].split()[-1])
                 line = f"{op_imm} T{self.result_t}, T{r.result_t}, {value}"
                 r = CPL2CAL(children[2], self.symbol_table, self.scope, self.t
@@ -228,21 +235,51 @@ machine, these may not be provided.")
             type_node, name_node = children
             type_ = self.dt_from_ast(type_node)
             name = name_node.lexeme.value
-        else:
-            # length must be three (see cpl.ebnf)
-            type_node, name_node, initialization_node = children
-            type_ = self.dt_from_ast(type_node)
-            name = name_node.lexeme.value
-            generator = CPL2CAL(
-                initialization_node, self.symbol_table, self.scope, self.t
+            self.t += 1
+            self.symbol_table.add_symbol(st.Symbol(
+                    st.SymbolTypes.VARIABLE, name, type_, self.t
+                )
             )
+            return assembly
+        # length must be three (see cpl.ebnf)
+        type_node, name_node, initialization_node = children
+        type_ = self.dt_from_ast(type_node)
+        name = name_node.lexeme.value
         self.t += 1
         self.symbol_table.add_symbol(st.Symbol(
                 st.SymbolTypes.VARIABLE, name, type_, self.t
             )
         )
+        generator = CPL2CAL(
+            initialization_node, self.symbol_table, self.scope, self.t,
+            modifiable=self.t
+        )
+        asm_code = generator.generate()
+        assembly = assembly.fuse(asm_code)
+        self.t = generator.t
+        self.result_t = generator.result_t
 
         return assembly
+    
+    def init_assignment(self, children:
+                        list[ast.AST_Node | ast.AST_Terminal]):
+        if len(children) == 1:
+            raise NotImplementedError
+        # len 2
+        # due to syntax, children[0] is an ast_terminal
+        if children[0].lexeme.value != "=":
+            raise NotImplementedError
+        
+        generator = CPL2CAL(
+            children[1], self.symbol_table, self.scope, self.t
+        )
+        asm_code = generator.generate()
+        self.t = generator.result_t-1
+        self.result_t = self.modifiable
+        op, target_t, *rest = generator.assembly[-1].split()
+        generator.assembly.lines[-1] = \
+            f"{op} T{self.modifiable}, {' '.join(rest)}"
+        return asm_code
 
     def IDENTIFIER(self, children):
         try:

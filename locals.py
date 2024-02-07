@@ -51,8 +51,8 @@ class CodeGenDebuggingOptions(OnlyFatalOptions):
     LVL_SYMTABOUT = LOG_BASE
     LVL_ASMOUT = LOG_BASE
 
-class CustomDebuggingOptions(DebugOptions):
-    pass
+class CustomDebuggingOptions(CodeGenDebuggingOptions):
+    LVL_PARSEOUT = LOG_DEBG
 
 class DBGLVL:
     def __init__(self, lvl):
