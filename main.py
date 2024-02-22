@@ -6,6 +6,9 @@ from compiler import compile
 from locals import *
 from cfclogger import log, timer, setup_logger, exit_logger
 
+DEFAULT_FILE_PATH = "code/tests/expressions/binary.cpl"
+USE_DEFAULT_FILE_PATH = True
+
 if __name__ == "__main__":
 
     setup_logger(True)
@@ -17,8 +20,10 @@ if __name__ == "__main__":
     return_code = 0
 
     try:
-
-        fp = input("File path: ")
+        if USE_DEFAULT_FILE_PATH:
+            fp = DEFAULT_FILE_PATH
+        else:
+            fp = input("File path: ")
         while not exists(fp):
             log(LOG_WARN, "File does not exist!")
             fp = input("File path: ")

@@ -1,0 +1,21 @@
+main:
+    LOR T2, T0, T1
+    LAN T3, T0, T1
+    ORR T4, T0, T1
+    XOR T5, T0, T1
+    AND T6, T0, T1
+    EQU T7, T0, T1
+    NEQ T8, T0, T1
+    LTR T9, T0, T1
+    GTR T10, T0, T1
+    LTE T11, T0, T1
+    GTE T12, T0, T1
+    LSH T13, T0, T1
+    RSH T14, T0, T1
+    ADD T15, T0, T1
+    SUB T16, T0, T1
+    MUL T17, T0, T1
+    DIV T18, T0, T1
+    MOD T19, T0, T1
+    POW T20, T0, T1
+    RET

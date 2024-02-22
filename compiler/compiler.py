@@ -16,7 +16,7 @@ def fmt(lexeme: lexer.tokens.Lexeme):
 def compile(file):
     global DBG
 
-    OPTIONS = CustomDebuggingOptions
+    OPTIONS = CodeGenDebuggingOptions
 
     DBG.set_floor(OPTIONS.FLOOR)
     
@@ -64,17 +64,7 @@ def compile(file):
 
     DBG.set(OPTIONS.LVL_ASMOUT)
     log(LOG_DEBG, "Generated assembly:")
-    for line in assembly.lines:
-        s: str = line
-        potentially_replaceables = findall(r"T([0-9]+)", line)
-        for replaceable in potentially_replaceables:
-            try:
-                sym = cal.symbol_table.by_t(int(replaceable), False)
-                var_name = sym.name
-                s = s.replace("T"+replaceable, var_name)
-            except KeyError:
-                continue
-        log(LOG_DEBG, s)
+    assembly.niceout(LOG_DEBG, cal)
     log(LOG_DEBG, "End")
     
     DBG.set(OPTIONS.FLOOR)

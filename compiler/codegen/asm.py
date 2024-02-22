@@ -1,3 +1,5 @@
+from re import findall, sub
+
 from cfclogger import *
 
 # Assembly, partially in the form of TAC (no register allocation)
@@ -39,3 +41,17 @@ class Assembly:
         for line in self.lines:
             f.write(line)
             f.write("\n")
+    
+    def niceout(self, dbg_lvl, cal):
+        for line in self.lines:
+            s: str = line
+            potentially_replaceables = findall(r"T([0-9]+)", line)
+            for replaceable in potentially_replaceables:
+                try:
+                    sym = cal.symbol_table.by_t(int(replaceable), False)
+                    var_name = sym.name
+                    s = sub(f"T{replaceable}\\b", var_name, s)
+                    #s = s.replace("T"+replaceable, var_name)
+                except KeyError:
+                    continue
+            log(dbg_lvl, s)

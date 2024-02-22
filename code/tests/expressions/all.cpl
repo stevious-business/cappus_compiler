@@ -1,0 +1,30 @@
+int main() {
+    // first individually test expressions, then combine
+    int x;
+    int y;
+    x || y;
+    x && y;
+    x | y;
+    x ^ y;
+    x & y;
+    x == y;
+    x != y;
+    x < y;
+    x > y;
+    x <= y;
+    x >= y;
+    x << y;
+    x >> y;
+    x + y;
+    x - y;
+    x * y;
+    x / y;
+    x % y;
+    x ** y;
+    +x;
+    -y;
+    !x;
+    ~y;
+    func();
+    func_2(x, y);
+}

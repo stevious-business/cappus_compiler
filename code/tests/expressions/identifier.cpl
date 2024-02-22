@@ -4,26 +4,5 @@ int main() {
     float *z;
     x+3;
     (y + 1) - (x - y + 4) + 2;
-    // we're fucked
-    /*
-    so fixing this problem is going to require
-    changing the grammar for expressions, recursive
-    sub-expressions first. idea: put the second case
-    first, and maybe adapt the parser
-
-    fml
-    */
-    /*
-    PLAN:
-    - for every rule, try and satisfy a non-recursive
-      option
-    - if that fails, then return failure
-    - otherwise attempt to generate a new node with
-      each recursive option, using the previous result
-      as the recursive part
-    */
-    /*
-    UPDATE 04.02.2024:
-    it works :D
-    */
+    0;
 }

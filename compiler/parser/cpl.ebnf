@@ -53,8 +53,7 @@
             | --
 
 <assignment-operator> ::= += | -= | *= | /=
-                      | >= | <= | != | ^=
-                      | %= | &= | |=
+                      | ^= | %= | &= | |=
                       | >>= | <<= | =
 
 <declaration-list> ::= <declaration> {<further-declaration>}*
@@ -119,9 +118,10 @@
                        | ( <expression> )
                        | <identifier>
 
-<function-call> ::= <identifier> ( {<assignment-expression>}? {<call-arg>}* )
+<function-call> ::= <identifier> ( {<parameter-list>}? )
 
-<call-arg> ::= , <assignment-expression>
+<parameter-list> ::= <assignment-expression>
+                   | <parameter-list> , <assignment-expression>
 
 <constant> ::= <integer-constant>
              | <floating-constant>

@@ -51,7 +51,7 @@ def exit_logger():
     log_file.flush()
     log_file.close()
 
-def log(level, text, nts=False, **kwargs):
+def log(level, text, nts=False, use_indent=True, **kwargs):
     global log_file
     if level >= DBG.get():
         level_colors = {
@@ -74,13 +74,14 @@ def log(level, text, nts=False, **kwargs):
             print(f"{level_colors[level]}{text}\033[0m", **kwargs)
             return
         t = ts()
+        print_indent_count = log_indent_count*use_indent
         pre = f"[\033[36m{SW_NAME}\033[0m::" \
             + f"\033[32m{t}\033[0m::" \
             + f"{level_colors[level]+level_texts[level]}\033[0m]"
-        final_text = f"{pre} {' '*log_indent_count} \
+        final_text = f"{pre} {' '*print_indent_count} \
 {level_colors[level]}{text}\033[0m"
         uncolored_pref = f"[{SW_NAME}::{t}::{level_texts[level]}]"
-        uncolored_text = f"{uncolored_pref}{' '*log_indent_count}{text}"
+        uncolored_text = f"{uncolored_pref}{' '*print_indent_count}{text}"
         print(final_text, **kwargs)
         log_file.write(uncolored_text+"\n")
 

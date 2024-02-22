@@ -50,6 +50,18 @@ class SymbolTable:
         if should_log_fail:
             log(LOG_FAIL, f"Failed to find symbol T{t} in table TwT")
         raise KeyError(t)
+    
+    def has_name(self, name):
+        for symbol in self.entries:
+            if symbol.name == name:
+                return True
+        return False
+    
+    def has_t(self, t):
+        for symbol in self.entries:
+            if symbol.var_t == t:
+                return True
+        return False
 
     def print(self, log_level):
         for symbol in self.entries:

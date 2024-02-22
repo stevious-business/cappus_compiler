@@ -1,0 +1,6 @@
+int main() {
+    int x;
+    x = 3+x;
+    x = 2*x+1/3*x;
+    0; // why does it go back to t1
+}

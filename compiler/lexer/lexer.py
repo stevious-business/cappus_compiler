@@ -112,23 +112,27 @@ class LexemeStream:
             self.lexemes.append(lexeme)
             return lexeme
         # operators and arithmetics
+        elif char + self.source.peek() + self.source.peek(2) \
+            in tokens.TokenList.TRIPLES:
+            lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR,
+                                   char+self.source.peek()+
+                                   self.source.peek(2),
+                                   self.source)
+            self.source.get()
+            self.source.get()
+            self.lexemes.append(lexeme)
+            return lexeme
+        elif char + self.source.peek() in tokens.TokenList.DOUBLES:
+            lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR,
+                                   char+self.source.peek(),
+                                   self.source)
+            self.source.get()
+            self.lexemes.append(lexeme)
+            return lexeme
+        
         elif char in tokens.TokenList.SINGLES:
-            if char + self.source.peek() in tokens.TokenList.DOUBLES:
-                if char + self.source.peek() + self.source.peek(2) \
-                        in tokens.TokenList.TRIPLES:
-                    lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR,
-                                           char+self.source.peek()
-                                           +self.source.peek(2),
-                                           self.source)
-                    self.source.get()
-                else:
-                    lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR,
-                                           char+self.source.peek(),
-                                           self.source)
-                self.source.get()
-            else:
-                lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR, char,
-                                       self.source)
+            lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR, char,
+                                   self.source)
             self.lexemes.append(lexeme)
             return lexeme
         
