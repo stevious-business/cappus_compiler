@@ -6,7 +6,7 @@ from compiler import compile
 from locals import *
 from cfclogger import log, timer, setup_logger, exit_logger
 
-DEFAULT_FILE_PATH = "code/tests/expressions/binary.cpl"
+DEFAULT_FILE_PATH = "code/tests/expressions/pemdas.cpl"
 USE_DEFAULT_FILE_PATH = True
 
 if __name__ == "__main__":

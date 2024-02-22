@@ -224,8 +224,7 @@ machine, these may not be provided.")
             lvalue = int(l.assembly.lines[-1].split()[-1])
             rvalue = int(r.assembly.lines[-1].split()[-1])
             svalue = ExpressionHelper().__getattribute__(dual_imm_fn_name) \
-                (lvalue, svalue)
-            svalue = lvalue.__getattribute__(dual_imm_fn_name)(rvalue)
+                (lvalue, rvalue)
             self.t += 1
             self.result_t = self.t
             line = f"LDI T{self.t}, {svalue}"

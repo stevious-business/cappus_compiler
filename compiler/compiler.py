@@ -16,7 +16,7 @@ def fmt(lexeme: lexer.tokens.Lexeme):
 def compile(file):
     global DBG
 
-    OPTIONS = CodeGenDebuggingOptions
+    OPTIONS = CustomDebuggingOptions
 
     DBG.set_floor(OPTIONS.FLOOR)
     

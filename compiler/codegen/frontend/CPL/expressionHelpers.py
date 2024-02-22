@@ -1,59 +1,59 @@
 from typing import Any
 
 class ExpressionHelper:
-    def logical_or(a: int, b: int) -> int:
+    def logical_or(self, a: int, b: int) -> int:
         return a or b
     
-    def logical_and(a: int, b: int) -> int:
+    def logical_and(self, a: int, b: int) -> int:
         return a and b
     
-    def bw_or(a: int, b: int) -> int:
+    def bw_or(self, a: int, b: int) -> int:
         return a | b
     
-    def bw_and(a: int, b: int) -> int:
+    def bw_and(self, a: int, b: int) -> int:
         return a & b
     
-    def bw_xor(a: int, b: int) -> int:
+    def bw_xor(self, a: int, b: int) -> int:
         return a ^ b
     
-    def eq(a: int, b: int) -> int:
+    def eq(self, a: int, b: int) -> int:
         return a == b
     
-    def neq(a: int, b: int) -> int:
+    def neq(self, a: int, b: int) -> int:
         return a != b
     
-    def lt(a: int, b: int) -> int:
+    def lt(self, a: int, b: int) -> int:
         return a < b
     
-    def gt(a: int, b: int) -> int:
+    def gt(self, a: int, b: int) -> int:
         return a > b
     
-    def le(a: int, b: int) -> int:
+    def le(self, a: int, b: int) -> int:
         return a <= b
     
-    def ge(a: int, b: int) -> int:
+    def ge(self, a: int, b: int) -> int:
         return a >= b
     
-    def lsh(a: int, b: int) -> int:
+    def lsh(self, a: int, b: int) -> int:
         return a << b
     
-    def rsh(a: int, b: int) -> int:
+    def rsh(self, a: int, b: int) -> int:
         return a >> b
     
-    def add(a: int, b: int) -> int:
+    def add(self, a: int, b: int) -> int:
         return a + b
     
-    def sub(a: int, b: int) -> int:
+    def sub(self, a: int, b: int) -> int:
         return a - b
     
-    def mul(a: int, b: int) -> int:
+    def mul(self, a: int, b: int) -> int:
         return a * b
     
-    def div(a: int, b: int) -> int:
+    def div(self, a: int, b: int) -> int:
         return a // b
     
-    def mod(a: int, b: int) -> int:
+    def mod(self, a: int, b: int) -> int:
         return a % b
     
-    def pow(a: int, b: int) -> int:
+    def pow(self, a: int, b: int) -> int:
         return a ** b
