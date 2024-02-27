@@ -38,7 +38,7 @@ if __name__ == "__main__":
                 log(LOG_WARN, "Your program is not a .cpl file!")
                 log(LOG_WARN, f"Expected .cpl file, got {ending}")
             assembly = compile(f)
-        with open(file_pref+".cal", "w") as f:
+        with open(file_pref+".cpc", "w") as f:
             assembly.export(f)
 
     except KeyboardInterrupt:

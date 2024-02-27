@@ -42,13 +42,13 @@ class Assembly:
             f.write(line)
             f.write("\n")
     
-    def niceout(self, dbg_lvl, cal):
+    def niceout(self, dbg_lvl, cpc):
         for line in self.lines:
             s: str = line
             potentially_replaceables = findall(r"T([0-9]+)", line)
             for replaceable in potentially_replaceables:
                 try:
-                    sym = cal.symbol_table.by_t(int(replaceable), False)
+                    sym = cpc.symbol_table.by_t(int(replaceable), False)
                     var_name = sym.name
                     s = sub(f"T{replaceable}\\b", var_name, s)
                     #s = s.replace("T"+replaceable, var_name)

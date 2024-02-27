@@ -4,7 +4,7 @@ from .lexer import lexer, source
 from .parser import parser, ast
 from .codegen import asm
 
-from .codegen.frontend.CPL.generators import CPL2CAL
+from .codegen.frontend.CPL.generators import CPL2CPC
 
 from cfclogger import *
 from locals import *
@@ -51,20 +51,20 @@ def compile(file):
 
     DBG.set(OPTIONS.LVL_CODEGEN)
     log(LOG_INFO, "Commencing code generation...")
-    cal = CPL2CAL(syntax_tree)
-    assembly: asm.Assembly = cal.generate()
+    cpc = CPL2CPC(syntax_tree)
+    assembly: asm.Assembly = cpc.generate()
     log(LOG_INFO, "Done!")
     
     DBG.set(OPTIONS.LVL_SYMTABOUT)
     log(LOG_DEBG, "Final Symbol Table:")
     log_indent()
-    cal.symbol_table.print(LOG_DEBG)
+    cpc.symbol_table.print(LOG_DEBG)
     log_dedent()
     log(LOG_DEBG, "End")
 
     DBG.set(OPTIONS.LVL_ASMOUT)
     log(LOG_DEBG, "Generated assembly:")
-    assembly.niceout(LOG_DEBG, cal)
+    assembly.niceout(LOG_DEBG, cpc)
     log(LOG_DEBG, "End")
     
     DBG.set(OPTIONS.FLOOR)

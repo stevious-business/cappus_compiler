@@ -10,7 +10,7 @@ from compiler.codegen import asm
 
 from .expressionHelpers import ExpressionHelper
 
-class CPL2CAL:
+class CPL2CPC:
     def __init__(self, ast_: ast.AST, symbol_table: st.SymbolTable = None,
                  scope=None, t=-1, **kwargs):
         self.t = t
@@ -50,7 +50,7 @@ class CPL2CAL:
     def root(self, children) -> asm.Assembly:
         ass = asm.Assembly()
         for child in children:
-            child_ass = CPL2CAL(child, self.symbol_table, t=self.t).generate()
+            child_ass = CPL2CPC(child, self.symbol_table, t=self.t).generate()
             ass = ass.fuse(child_ass)
         
         return ass
@@ -75,7 +75,7 @@ class CPL2CAL:
                 )
             else:
                 assembly = assembly.fuse(
-                    CPL2CAL(child, self.symbol_table, t=self.t).generate()
+                    CPL2CPC(child, self.symbol_table, t=self.t).generate()
                 )
         raise SyntaxError("No EOF Token at end of <translation-unit>!")
     
@@ -102,7 +102,7 @@ machine, these may not be provided.")
             f"{name}:",
         ])
         assembly.indent()
-        cs_ass = CPL2CAL(c_statement, self.symbol_table,
+        cs_ass = CPL2CPC(c_statement, self.symbol_table,
                          scope=self.symbol_table.by_name(name), t=self.t
                          ).generate()
         assembly.fuse(cs_ass)
@@ -132,7 +132,7 @@ machine, these may not be provided.")
         op, *statements, cp = children
         assembly = asm.Assembly()
         for stmt in statements:
-            child_code = CPL2CAL(
+            child_code = CPL2CPC(
                 stmt, self.symbol_table, scope=self.scope, t=self.t)
             child_code.generate()
             self.t = child_code.t
@@ -141,7 +141,7 @@ machine, these may not be provided.")
     
     def statement(self,
             children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
-        child_code = CPL2CAL(
+        child_code = CPL2CPC(
             children[0], self.symbol_table, scope=self.scope, t=self.t
         )
         child_code.generate()
@@ -163,11 +163,11 @@ machine, these may not be provided.")
         }
         """
         # Always the same
-        l = CPL2CAL(children[0], self.symbol_table, self.scope, self.t)
+        l = CPL2CPC(children[0], self.symbol_table, self.scope, self.t)
         l.generate()
         left_imm = l.assembly[-1].startswith(f"LDI T{l.result_t}")
         lt_or_selft = (self.t if left_imm else l.t)
-        r = CPL2CAL(children[2], self.symbol_table, self.scope, lt_or_selft)
+        r = CPL2CPC(children[2], self.symbol_table, self.scope, lt_or_selft)
         r.generate()
         operator_symbol = children[1].lexeme.value
         op_regs = ""
@@ -213,7 +213,7 @@ machine, these may not be provided.")
                     self.result_t = self.t
                 value = int(l.assembly.lines[-1].split()[-1])
                 line = f"{op_imm} T{self.result_t}, T{r.result_t}, {value}"
-                r = CPL2CAL(children[2], self.symbol_table, self.scope, self.t
+                r = CPL2CPC(children[2], self.symbol_table, self.scope, self.t
                     )
                 r.generate()
                 self.assembly = self.assembly.fuse(r.assembly)
@@ -434,7 +434,7 @@ machine, these may not be provided.")
     def primary_expression(self,
             children: list[ast.AST_Node | ast.AST_Terminal]):
         if children[0].lexeme.tokenType == tokens.TokenType.OPENPAR:
-            assembly = CPL2CAL(
+            assembly = CPL2CPC(
                 children[1], self.symbol_table, self.scope, self.t
             )
             assembly_code = assembly.generate()
@@ -464,7 +464,7 @@ machine, these may not be provided.")
                 st.SymbolTypes.VARIABLE, name, type_, self.t
             )
         )
-        generator = CPL2CAL(
+        generator = CPL2CPC(
             initialization_node, self.symbol_table, self.scope, self.t,
             modifiable=self.t
         )
@@ -481,7 +481,7 @@ machine, these may not be provided.")
         name_node, initialization_node = children
         name = name_node.lexeme.value
         modifiable = self.symbol_table.by_name(name)
-        generator = CPL2CAL(
+        generator = CPL2CPC(
             initialization_node, self.symbol_table, self.scope, self.t,
             modifiable=modifiable.var_t
         )
@@ -501,7 +501,7 @@ machine, these may not be provided.")
         if children[0].lexeme.value != "=":
             raise NotImplementedError # TODO: Implement
         
-        generator = CPL2CAL(
+        generator = CPL2CPC(
             children[1], self.symbol_table, self.scope, self.t
         )
         asm_code = generator.generate()
