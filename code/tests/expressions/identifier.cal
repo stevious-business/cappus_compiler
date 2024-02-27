@@ -1,8 +1,10 @@
 main:
+    LDI T1, 3
     ADI T3, T0, 3
     ADI T4, T1, 1
-    ADI T4, T1, 4
-    SUB T5, T0, T4
-    ADI T6, T5, 2
-    SUB T7, T4, T6
+    SUB T5, T0, T1
+    ADI T5, T5, 4
+    SUB T4, T4, T5
+    ADI T4, T4, 2
+    LDI T6, 0
     RET

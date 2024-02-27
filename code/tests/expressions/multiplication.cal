@@ -1,0 +1,7 @@
+main:
+    ADI T0, T0, 3
+    MLI T1, T0, 2
+    MLI T2, T0, 0
+    ADD T0, T1, T2
+    LDI T1, 0
+    RET

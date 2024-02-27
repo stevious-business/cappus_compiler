@@ -1,0 +1,40 @@
+opcodes:
+
+- LOR (logical or)
+- LOI (LOR imm)
+- LAN (logical and)
+- LAI (LAN imm)
+- ORR (bitwise or register)
+- ORI (ORR imm)
+- XOR (bitwise xor)
+- XRI (XOR imm)
+- AND (bitwise and)
+- ANI (AND imm)
+- EQU (equality)
+- EQI (EQU imm)
+- NEQ (inequality)
+- NQI (NEQ imm)
+- LTR (less than register)
+- LTI (LTR imm)
+- GTR (greater than register)
+- GTI (GTR imm)
+- LTE (less or equal)
+- LEI (LTE imm)
+- GTE (greater or equal)
+- GEI (GTE imm)
+- LSH (left shift)
+- LSI (LSH imm)
+- RSH (right shift)
+- RSI (RSH imm)
+- ADD
+- ADI
+- SUB
+- SBI
+- MUL
+- MLI
+- DIV
+- DVI
+- MOD
+- MDI
+- POW
+- PWI (POW imm)

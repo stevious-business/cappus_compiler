@@ -1,3 +1,5 @@
+from typing import Any
+
 from cfclogger import *
 
 from compiler.lexer import tokens
@@ -6,13 +8,16 @@ from compiler.parser import ast
 from compiler.codegen import symbol_table as st
 from compiler.codegen import asm
 
-class CPL2CAL:
+from .expressionHelpers import ExpressionHelper
+
+class CPL2CPC:
     def __init__(self, ast_: ast.AST, symbol_table: st.SymbolTable = None,
-                 scope=None, t=-1):
+                 scope=None, t=-1, **kwargs):
         self.t = t
         self.result_t = -1
         self.symbol_table = symbol_table
         self.scope = scope
+        self.kwargs = kwargs
         self.assembly = asm.Assembly()
         if self.symbol_table is None:
             self.symbol_table = st.SymbolTable()
@@ -24,22 +29,28 @@ class CPL2CAL:
         self.rootType = self.ast.name
         if isinstance(self.ast, ast.AST_Terminal):
             self.rootType = self.ast.lexeme.tokenType.name
+    
+    def __getattribute__(self, __name: str) -> Any:
+        try:
+            return super().__getattribute__(__name)
+        except AttributeError:
+            return self.kwargs[__name]
 
     def __getitem__(self, item):
         if item.startswith("<"):
             return self.__getattribute__(item[1:-1].replace("-", "_"))
         return self.__getattribute__(item)
 
+    @logAutoIndent
     def generate(self):
-        log(LOG_DEBG, f"Generating on {self.rootType}")
+        log(LOG_DEBG, f"Generating on {self.rootType}, T{self.t}")
         self.assembly = self[self.rootType](self.ast.children)
         return self.assembly
     
     def root(self, children) -> asm.Assembly:
         ass = asm.Assembly()
-        ass.mark("root")
         for child in children:
-            child_ass = CPL2CAL(child, self.symbol_table, t=self.t).generate()
+            child_ass = CPL2CPC(child, self.symbol_table, t=self.t).generate()
             ass = ass.fuse(child_ass)
         
         return ass
@@ -64,7 +75,7 @@ class CPL2CAL:
                 )
             else:
                 assembly = assembly.fuse(
-                    CPL2CAL(child, self.symbol_table, t=self.t).generate()
+                    CPL2CPC(child, self.symbol_table, t=self.t).generate()
                 )
         raise SyntaxError("No EOF Token at end of <translation-unit>!")
     
@@ -90,9 +101,8 @@ machine, these may not be provided.")
         assembly = asm.Assembly([
             f"{name}:",
         ])
-        assembly.mark("f-d")
         assembly.indent()
-        cs_ass = CPL2CAL(c_statement, self.symbol_table,
+        cs_ass = CPL2CPC(c_statement, self.symbol_table,
                          scope=self.symbol_table.by_name(name), t=self.t
                          ).generate()
         assembly.fuse(cs_ass)
@@ -122,7 +132,7 @@ machine, these may not be provided.")
         op, *statements, cp = children
         assembly = asm.Assembly()
         for stmt in statements:
-            child_code = CPL2CAL(
+            child_code = CPL2CPC(
                 stmt, self.symbol_table, scope=self.scope, t=self.t)
             child_code.generate()
             self.t = child_code.t
@@ -131,38 +141,62 @@ machine, these may not be provided.")
     
     def statement(self,
             children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
-        child_code = CPL2CAL(
+        child_code = CPL2CPC(
             children[0], self.symbol_table, scope=self.scope, t=self.t
         )
         child_code.generate()
         self.t = child_code.t
         return child_code.assembly
 
-    def additive_expression(self,
-            children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
+    # expressions
+    def expression_helper(self, children, expr_fmt) -> asm.Assembly:
+        """
+        :expr_fmt: dict format:
+        {
+            "expression_name": str,
+            "<symbol_name>": {
+                "op_regs": str,
+                "op_imm": str,
+                "commutative": bool,
+                "dual_imm_func": str
+            }
+        }
+        """
         # Always the same
-        l = CPL2CAL(children[0], self.symbol_table, self.scope, self.t)
-        r = CPL2CAL(children[2], self.symbol_table, self.scope, l.t)
+        l = CPL2CPC(children[0], self.symbol_table, self.scope, self.t)
         l.generate()
+        left_imm = l.assembly[-1].startswith(f"LDI T{l.result_t}")
+        lt_or_selft = (self.t if left_imm else l.t)
+        r = CPL2CPC(children[2], self.symbol_table, self.scope, lt_or_selft)
         r.generate()
         operator_symbol = children[1].lexeme.value
         op_regs = ""
         op_imm = ""
         right_imm = r.assembly[-1].startswith(f"LDI T{r.result_t}")
-        left_imm = l.assembly[-1].startswith(f"LDI T{l.result_t}")
 
         # Different for different expression types
-        if operator_symbol == "+":
-            op_regs = "ADD"
-            op_imm = "ADI"
-        elif operator_symbol == "-":
-            op_regs = "SUB"
-            op_imm = "SBI"
+        try:
+            operator_fmt = expr_fmt[operator_symbol]
+            op_regs = operator_fmt["op_regs"]
+            op_imm = operator_fmt["op_imm"]
+            is_commutative = operator_fmt["commutative"]
+            dual_imm_fn_name = operator_fmt["dual_imm_func"]
+        except KeyError:
+            log(LOG_FAIL,
+                "Invalid expr_fmt! (name %s, symbol %s)" % (
+                    expr_fmt["expression_name"], operator_symbol
+                ), use_indent=False)
+            raise
         
         if (right_imm == 1 and left_imm == 0):
             # right is immediate, immediate format
+            # optimization: reuse T's if they aren't reserved for vars
             self.t = l.t + 1
-            self.result_t = self.t
+            if not self.symbol_table.has_t(l.result_t):
+                self.result_t = l.result_t
+                self.t = l.t
+            else:
+                self.result_t = self.t
             value = int(r.assembly.lines[-1].split()[-1])
             line = f"{op_imm} T{self.result_t}, T{l.result_t}, {value}"
             self.assembly = self.assembly.fuse(l.assembly)
@@ -170,13 +204,18 @@ machine, these may not be provided.")
             return self.assembly
         elif (right_imm == 0 and left_imm == 1):
             # left is immediate, imm-format if adding
-            if operator_symbol == "+":
+            if is_commutative:
                 self.t = r.t + 1
-                self.result_t = r.t
+                if not self.symbol_table.has_t(r.result_t):
+                    self.result_t = r.result_t
+                    self.t = r.t
+                else:
+                    self.result_t = self.t
                 value = int(l.assembly.lines[-1].split()[-1])
                 line = f"{op_imm} T{self.result_t}, T{r.result_t}, {value}"
-                r = CPL2CAL(children[2], self.symbol_table, self.scope, self.t
-                    ).generate()
+                r = CPL2CPC(children[2], self.symbol_table, self.scope, self.t
+                    )
+                r.generate()
                 self.assembly = self.assembly.fuse(r.assembly)
                 self.assembly = self.assembly.fuse(asm.Assembly([line]))
                 return self.assembly
@@ -184,10 +223,8 @@ machine, these may not be provided.")
             # both are immediates, calculate value immediately
             lvalue = int(l.assembly.lines[-1].split()[-1])
             rvalue = int(r.assembly.lines[-1].split()[-1])
-            if operator_symbol == "+":
-                svalue = lvalue+rvalue
-            else:
-                svalue = lvalue-rvalue
+            svalue = ExpressionHelper().__getattribute__(dual_imm_fn_name) \
+                (lvalue, rvalue)
             self.t += 1
             self.result_t = self.t
             line = f"LDI T{self.t}, {svalue}"
@@ -196,12 +233,196 @@ machine, these may not be provided.")
 
         # normal procedure
         self.t = r.t + 1
-        self.result_t = self.t
+        if not self.symbol_table.has_t(l.result_t):
+            self.result_t = l.result_t
+            self.t = r.t
+        else:
+            self.result_t = self.t
         line = f"{op_regs} T{self.result_t}, T{l.result_t}, T{r.result_t}"
         self.assembly = self.assembly.fuse(l.assembly).fuse(r.assembly)
         self.assembly = self.assembly.fuse(asm.Assembly([line]))
         return self.assembly
     
+    def expression_template(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "",
+            "": {
+                "op_regs": "",
+                "op_imm": "",
+                "commutative": False,
+                "dual_imm_func": ""
+            },
+        })
+
+    def logical_or_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "logical-or-expression",
+            "||": {
+                "op_regs": "LOR",
+                "op_imm": "LOI",
+                "commutative": True,
+                "dual_imm_func": "logical_or"
+            }
+        })
+    
+    def logical_and_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "logical-and-expression",
+            "&&": {
+                "op_regs": "LAN",
+                "op_imm": "LAI",
+                "commutative": True,
+                "dual_imm_func": "logical_and"
+            }
+        })
+
+    def inclusive_or_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "inclusive-or-expression",
+            "|": {
+                "op_regs": "ORR",
+                "op_imm": "ORI",
+                "commutative": True,
+                "dual_imm_func": "bw_or"
+            }
+        })
+    
+    def exclusive_or_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "exclusive-or-expression",
+            "^": {
+                "op_regs": "XOR",
+                "op_imm": "XRI",
+                "commutative": True,
+                "dual_imm_func": "bw_xor"
+            }
+        })
+    
+    def and_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "and-expression",
+            "&": {
+                "op_regs": "AND",
+                "op_imm": "ANI",
+                "commutative": True,
+                "dual_imm_func": "bw_and"
+            }
+        })
+
+    def equality_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "equality-expression",
+            "==": {
+                "op_regs": "EQU",
+                "op_imm": "EQI",
+                "commutative": True,
+                "dual_imm_func": "eq"
+            },
+            "!=": {
+                "op_regs": "NEQ",
+                "op_imm": "NQI",
+                "commutative": True,
+                "dual_imm_func": "neq"
+            },
+        })
+    
+    def relational_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "relational-expression",
+            "<": {
+                "op_regs": "LTR",
+                "op_imm": "LTI",
+                "commutative": False,
+                "dual_imm_func": "lt"
+            },
+            ">": {
+                "op_regs": "GTR",
+                "op_imm": "GTI",
+                "commutative": False,
+                "dual_imm_func": "gt"
+            },
+            ">=": {
+                "op_regs": "GTE",
+                "op_imm": "GEI",
+                "commutative": False,
+                "dual_imm_func": "ge"
+            },
+            "<=": {
+                "op_regs": "LTE",
+                "op_imm": "LEI",
+                "commutative": False,
+                "dual_imm_func": "le"
+            },
+        })
+    
+    def shift_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "shift-expression",
+            "<<": {
+                "op_regs": "LSH",
+                "op_imm": "LSI",
+                "commutative": False,
+                "dual_imm_func": "lsh"
+            },
+            ">>": {
+                "op_regs": "RSH",
+                "op_imm": "RSI",
+                "commutative": False,
+                "dual_imm_func": "rsh"
+            },
+        })
+
+    def additive_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "additive-expression",
+            "+": {
+                "op_regs": "ADD",
+                "op_imm": "ADI",
+                "commutative": True,
+                "dual_imm_func": "add"
+            },
+            "-": {
+                "op_regs": "SUB",
+                "op_imm": "SBI",
+                "commutative": False,
+                "dual_imm_func": "sub"
+            }
+        })
+    
+    def multiplicative_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "multiplicative-expression",
+            "*": {
+                "op_regs": "MUL",
+                "op_imm": "MLI",
+                "commutative": True,
+                "dual_imm_func": "mul"
+            },
+            "/": {
+                "op_regs": "DIV",
+                "op_imm": "DVI",
+                "commutative": False,
+                "dual_imm_func": "div"
+            },
+            "%": {
+                "op_regs": "MOD",
+                "op_imm": "MDI",
+                "commutative": False,
+                "dual_imm_func": "mod"
+            },
+        })
+    
+    def power_expression(self, children):
+        return self.expression_helper(children, {
+            "expression_name": "power-expression",
+            "**": {
+                "op_regs": "POW",
+                "op_imm": "PWI",
+                "commutative": False,
+                "dual_imm_func": "pow"
+            },
+        })
+
     def INTEGER(self, children):
         self.t += 1
         self.result_t = self.t
@@ -213,7 +434,7 @@ machine, these may not be provided.")
     def primary_expression(self,
             children: list[ast.AST_Node | ast.AST_Terminal]):
         if children[0].lexeme.tokenType == tokens.TokenType.OPENPAR:
-            assembly = CPL2CAL(
+            assembly = CPL2CPC(
                 children[1], self.symbol_table, self.scope, self.t
             )
             assembly_code = assembly.generate()
@@ -228,18 +449,68 @@ machine, these may not be provided.")
             type_node, name_node = children
             type_ = self.dt_from_ast(type_node)
             name = name_node.lexeme.value
-        else:
-            # length must be three (see cpl.ebnf)
-            type_node, name_node, initialization_node = children
-            type_ = self.dt_from_ast(type_node)
-            name = name_node.lexeme.value
+            self.t += 1
+            self.symbol_table.add_symbol(st.Symbol(
+                    st.SymbolTypes.VARIABLE, name, type_, self.t
+                )
+            )
+            return assembly
+        # length must be three (see cpl.ebnf)
+        type_node, name_node, initialization_node = children
+        type_ = self.dt_from_ast(type_node)
+        name = name_node.lexeme.value
         self.t += 1
         self.symbol_table.add_symbol(st.Symbol(
                 st.SymbolTypes.VARIABLE, name, type_, self.t
             )
         )
+        generator = CPL2CPC(
+            initialization_node, self.symbol_table, self.scope, self.t,
+            modifiable=self.t
+        )
+        asm_code = generator.generate()
+        assembly = assembly.fuse(asm_code)
+        self.t = generator.t
+        self.result_t = generator.result_t
 
         return assembly
+    
+    def assignment_expression(self, children:
+                              list[ast.AST_Node | ast.AST_Terminal]):
+        assembly = asm.Assembly()
+        name_node, initialization_node = children
+        name = name_node.lexeme.value
+        modifiable = self.symbol_table.by_name(name)
+        generator = CPL2CPC(
+            initialization_node, self.symbol_table, self.scope, self.t,
+            modifiable=modifiable.var_t
+        )
+        asm_code = generator.generate()
+        assembly = assembly.fuse(asm_code)
+        self.t = generator.t
+        self.result_t = generator.result_t
+
+        return assembly
+    
+    def init_assignment(self, children:
+                        list[ast.AST_Node | ast.AST_Terminal]):
+        if len(children) == 1:
+            raise NotImplementedError # TODO: Implement
+        # len 2
+        # due to syntax, children[0] is an ast_terminal
+        if children[0].lexeme.value != "=":
+            raise NotImplementedError # TODO: Implement
+        
+        generator = CPL2CPC(
+            children[1], self.symbol_table, self.scope, self.t
+        )
+        asm_code = generator.generate()
+        self.t = generator.result_t-1
+        self.result_t = self.modifiable
+        op, target_t, *rest = generator.assembly[-1].split()
+        generator.assembly.lines[-1] = \
+            f"{op} T{self.modifiable}, {' '.join(rest)}"
+        return asm_code
 
     def IDENTIFIER(self, children):
         try:

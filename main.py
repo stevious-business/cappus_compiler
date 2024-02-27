@@ -4,21 +4,32 @@ from re import search
 
 from compiler import compile
 from locals import *
-from cfclogger import log
+from cfclogger import log, timer, setup_logger, exit_logger
+
+DEFAULT_FILE_PATH = "code/tests/expressions/pemdas.cpl"
+USE_DEFAULT_FILE_PATH = True
 
 if __name__ == "__main__":
+
+    setup_logger(True)
 
     print()
     log(LOG_INFO, "Launching CFC compiler!")
     print()
 
-    try:
+    return_code = 0
 
-        fp = input("File path: ")
+    try:
+        if USE_DEFAULT_FILE_PATH:
+            fp = DEFAULT_FILE_PATH
+        else:
+            fp = input("File path: ")
         while not exists(fp):
             log(LOG_WARN, "File does not exist!")
             fp = input("File path: ")
         
+        timer.reset()
+
         with open(fp) as f:
             ending = search(r"\.[a-zA-Z]+$", f.name).group()
             file_pref = fp.removesuffix(ending)
@@ -27,15 +38,19 @@ if __name__ == "__main__":
                 log(LOG_WARN, "Your program is not a .cpl file!")
                 log(LOG_WARN, f"Expected .cpl file, got {ending}")
             assembly = compile(f)
-        with open(file_pref+".cal", "w") as f:
+        with open(file_pref+".cpc", "w") as f:
             assembly.export(f)
 
     except KeyboardInterrupt:
         print()
         log(LOG_FAIL, "Interrupted! Exiting...")
+        return_code = 2
     except Exception as e:
         log(LOG_FAIL, f"Critical Error! {str(e)}")
-        exit(1)
+        return_code = 1
     else:
-        log(LOG_INFO, "Job done!")
-        exit(0)
+        t = round(timer.time_since_launch(), 2)
+        log(LOG_INFO, f"Job done in {t}s!")
+    finally:
+        exit_logger()
+        exit(return_code)

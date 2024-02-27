@@ -1,0 +1,4 @@
+main:
+    LDI T1, 3
+    SBI T2, T1, 5
+    RET
