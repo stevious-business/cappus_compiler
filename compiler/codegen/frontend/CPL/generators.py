@@ -10,6 +10,7 @@ from compiler.codegen import asm
 
 from .expressionHelpers import ExpressionHelper
 
+
 class CPL2CPC:
     def __init__(self, ast_: ast.AST, symbol_table: st.SymbolTable = None,
                  scope=None, t=-1, **kwargs):
@@ -29,7 +30,7 @@ class CPL2CPC:
         self.rootType = self.ast.name
         if isinstance(self.ast, ast.AST_Terminal):
             self.rootType = self.ast.lexeme.tokenType.name
-    
+
     def __getattribute__(self, __name: str) -> Any:
         try:
             return super().__getattribute__(__name)
@@ -42,30 +43,30 @@ class CPL2CPC:
         return self.__getattribute__(item)
 
     @logAutoIndent
-    def generate(self):
+    def generate(self) -> asm.Assembly:
         log(LOG_DEBG, f"Generating on {self.rootType}, T{self.t}")
         self.assembly = self[self.rootType](self.ast.children)
         return self.assembly
-    
+
     def root(self, children) -> asm.Assembly:
         ass = asm.Assembly()
         for child in children:
             child_ass = CPL2CPC(child, self.symbol_table, t=self.t).generate()
             ass = ass.fuse(child_ass)
-        
+
         return ass
-    
+
     # root children
-    def translation_unit(self,
-                        children: list[
-                            ast.AST_Node | ast.AST_Terminal
-                        ]) -> asm.Assembly:
+    def translation_unit(
+            self,
+            children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
         assembly = asm.Assembly()
         assembly.mark("t-u")
         for child in children:
             if isinstance(child, ast.AST_Terminal):
                 if child.lexeme.value == "EOF":
-                    log(LOG_DEBG,
+                    log(
+                        LOG_DEBG,
                         "Finished generating assembly for <translation-unit>"
                     )
                     return assembly
@@ -78,13 +79,13 @@ class CPL2CPC:
                     CPL2CPC(child, self.symbol_table, t=self.t).generate()
                 )
         raise SyntaxError("No EOF Token at end of <translation-unit>!")
-    
+
     # translation-unit children
     def EOF(self, children) -> asm.Assembly:
         return asm.Assembly()
-    
+
     def function_definition(self,
-            children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
+                            children: list[ast.AST_Node | ast.AST_Terminal]):
         type_spec, name, op, *args, cp, c_statement = children
         name = name.lexeme.value
         # warning about main entrypoint
@@ -97,7 +98,7 @@ class CPL2CPC:
 machine, these may not be provided.")
                 log(LOG_WARN, "This can lead to undefined behavior.")
         self.symbol_table.add_symbol(st.Symbol(st.SymbolTypes.LABEL, name,
-                                       dt=self.dt_from_ast(type_spec)))
+                                     dt=self.dt_from_ast(type_spec)))
         assembly = asm.Assembly([
             f"{name}:",
         ])
@@ -110,25 +111,26 @@ machine, these may not be provided.")
             "RET"
         ])
         assembly.fuse(assembly_return)
-        log(LOG_DEBG,
+        log(
+            LOG_DEBG,
             "Finished generating assembly for <function-definition>"
         )
         return assembly
-    
+
     def dt_from_ast(self, node: ast.AST_Node | ast.AST_Terminal):
-        if isinstance(node, ast.AST_Terminal): # literally just <type-name>
+        if isinstance(node, ast.AST_Terminal):  # literally just <type-name>
             return node.lexeme.value
         # Else, we must dig deeper
         if node.name == "<scoped-type-specifier>":
             return node[0].lexeme.value + " " + node[1].lexeme.value
-        if type(node) == ast.AST_Node: # isinstance fucks due to bad parents
+        if not isinstance(node, ast.AST_Terminal):
             # pointer
             return node[0].lexeme.value + " *"
         return node.lexeme.value
 
     # function-definition children
     def compound_statement(self,
-            children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
+                           children: list[ast.AST_Node | ast.AST_Terminal]):
         op, *statements, cp = children
         assembly = asm.Assembly()
         for stmt in statements:
@@ -138,9 +140,9 @@ machine, these may not be provided.")
             self.t = child_code.t
             assembly.fuse(child_code.assembly)
         return assembly
-    
+
     def statement(self,
-            children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
+                  children: list[ast.AST_Node | ast.AST_Terminal]):
         child_code = CPL2CPC(
             children[0], self.symbol_table, scope=self.scope, t=self.t
         )
@@ -163,16 +165,20 @@ machine, these may not be provided.")
         }
         """
         # Always the same
-        l = CPL2CPC(children[0], self.symbol_table, self.scope, self.t)
-        l.generate()
-        left_imm = l.assembly[-1].startswith(f"LDI T{l.result_t}")
-        lt_or_selft = (self.t if left_imm else l.t)
-        r = CPL2CPC(children[2], self.symbol_table, self.scope, lt_or_selft)
-        r.generate()
+        l_operand = CPL2CPC(children[0], self.symbol_table, self.scope, self.t)
+        l_operand.generate()
+        left_imm = l_operand.assembly[-1] \
+            .startswith(f"LDI T{l_operand.result_t}")
+        lt_or_selft = (self.t if left_imm else l_operand.t)
+        r_operand = CPL2CPC(
+            children[2], self.symbol_table, self.scope, lt_or_selft
+        )
+        r_operand.generate()
         operator_symbol = children[1].lexeme.value
         op_regs = ""
         op_imm = ""
-        right_imm = r.assembly[-1].startswith(f"LDI T{r.result_t}")
+        right_imm = r_operand.assembly[-1] \
+            .startswith(f"LDI T{r_operand.result_t}")
 
         # Different for different expression types
         try:
@@ -187,44 +193,51 @@ machine, these may not be provided.")
                     expr_fmt["expression_name"], operator_symbol
                 ), use_indent=False)
             raise
-        
+
         if (right_imm == 1 and left_imm == 0):
             # right is immediate, immediate format
             # optimization: reuse T's if they aren't reserved for vars
-            self.t = l.t + 1
-            if not self.symbol_table.has_t(l.result_t):
-                self.result_t = l.result_t
-                self.t = l.t
+            self.t = l_operand.t + 1
+            if not self.symbol_table.has_t(l_operand.result_t):
+                self.result_t = l_operand.result_t
+                self.t = l_operand.t
             else:
                 self.result_t = self.t
-            value = int(r.assembly.lines[-1].split()[-1])
-            line = f"{op_imm} T{self.result_t}, T{l.result_t}, {value}"
-            self.assembly = self.assembly.fuse(l.assembly)
+            value = int(r_operand.assembly.lines[-1].split()[-1])
+            line = f"{op_imm} T{self.result_t}, T{l_operand.result_t}, {value}"
+            self.assembly = self.assembly.fuse(l_operand.assembly)
             self.assembly = self.assembly.fuse(asm.Assembly([line]))
             return self.assembly
         elif (right_imm == 0 and left_imm == 1):
             # left is immediate, imm-format if adding
             if is_commutative:
-                self.t = r.t + 1
-                if not self.symbol_table.has_t(r.result_t):
-                    self.result_t = r.result_t
-                    self.t = r.t
+                self.t = r_operand.t + 1
+                if not self.symbol_table.has_t(r_operand.result_t):
+                    self.result_t = r_operand.result_t
+                    self.t = r_operand.t
                 else:
                     self.result_t = self.t
-                value = int(l.assembly.lines[-1].split()[-1])
-                line = f"{op_imm} T{self.result_t}, T{r.result_t}, {value}"
-                r = CPL2CPC(children[2], self.symbol_table, self.scope, self.t
-                    )
-                r.generate()
-                self.assembly = self.assembly.fuse(r.assembly)
+                value = int(l_operand.assembly.lines[-1].split()[-1])
+                line = "%s T%d, T%d, T%d" % (
+                    op_imm,
+                    self.result_t,
+                    r_operand.result_t,
+                    value
+                )
+                r_operand = CPL2CPC(
+                    children[2], self.symbol_table, self.scope, self.t
+                )
+                r_operand.generate()
+                self.assembly = self.assembly.fuse(r_operand.assembly)
                 self.assembly = self.assembly.fuse(asm.Assembly([line]))
                 return self.assembly
         elif (right_imm & left_imm):
             # both are immediates, calculate value immediately
-            lvalue = int(l.assembly.lines[-1].split()[-1])
-            rvalue = int(r.assembly.lines[-1].split()[-1])
-            svalue = ExpressionHelper().__getattribute__(dual_imm_fn_name) \
-                (lvalue, rvalue)
+            lvalue = int(l_operand.assembly.lines[-1].split()[-1])
+            rvalue = int(r_operand.assembly.lines[-1].split()[-1])
+            svalue = ExpressionHelper().__getattribute__(dual_imm_fn_name)(
+                lvalue, rvalue
+            )
             self.t += 1
             self.result_t = self.t
             line = f"LDI T{self.t}, {svalue}"
@@ -232,17 +245,23 @@ machine, these may not be provided.")
             return self.assembly
 
         # normal procedure
-        self.t = r.t + 1
-        if not self.symbol_table.has_t(l.result_t):
-            self.result_t = l.result_t
-            self.t = r.t
+        self.t = r_operand.t + 1
+        if not self.symbol_table.has_t(l_operand.result_t):
+            self.result_t = l_operand.result_t
+            self.t = r_operand.t
         else:
             self.result_t = self.t
-        line = f"{op_regs} T{self.result_t}, T{l.result_t}, T{r.result_t}"
-        self.assembly = self.assembly.fuse(l.assembly).fuse(r.assembly)
+        line = "%s T%d, T%d, T%d" % (
+            op_regs,
+            self.result_t,
+            l_operand.result_t,
+            r_operand.result_t
+        )
+        self.assembly = self.assembly.fuse(l_operand.assembly) \
+                            .fuse(r_operand.assembly)
         self.assembly = self.assembly.fuse(asm.Assembly([line]))
         return self.assembly
-    
+
     def expression_template(self, children):
         return self.expression_helper(children, {
             "expression_name": "",
@@ -264,7 +283,7 @@ machine, these may not be provided.")
                 "dual_imm_func": "logical_or"
             }
         })
-    
+
     def logical_and_expression(self, children):
         return self.expression_helper(children, {
             "expression_name": "logical-and-expression",
@@ -286,7 +305,7 @@ machine, these may not be provided.")
                 "dual_imm_func": "bw_or"
             }
         })
-    
+
     def exclusive_or_expression(self, children):
         return self.expression_helper(children, {
             "expression_name": "exclusive-or-expression",
@@ -297,7 +316,7 @@ machine, these may not be provided.")
                 "dual_imm_func": "bw_xor"
             }
         })
-    
+
     def and_expression(self, children):
         return self.expression_helper(children, {
             "expression_name": "and-expression",
@@ -325,7 +344,7 @@ machine, these may not be provided.")
                 "dual_imm_func": "neq"
             },
         })
-    
+
     def relational_expression(self, children):
         return self.expression_helper(children, {
             "expression_name": "relational-expression",
@@ -354,7 +373,7 @@ machine, these may not be provided.")
                 "dual_imm_func": "le"
             },
         })
-    
+
     def shift_expression(self, children):
         return self.expression_helper(children, {
             "expression_name": "shift-expression",
@@ -388,7 +407,7 @@ machine, these may not be provided.")
                 "dual_imm_func": "sub"
             }
         })
-    
+
     def multiplicative_expression(self, children):
         return self.expression_helper(children, {
             "expression_name": "multiplicative-expression",
@@ -411,7 +430,7 @@ machine, these may not be provided.")
                 "dual_imm_func": "mod"
             },
         })
-    
+
     def power_expression(self, children):
         return self.expression_helper(children, {
             "expression_name": "power-expression",
@@ -430,9 +449,9 @@ machine, these may not be provided.")
             f"LDI T{self.result_t}, {self.ast.lexeme.value}"
         ])
         return assembly
-    
-    def primary_expression(self,
-            children: list[ast.AST_Node | ast.AST_Terminal]):
+
+    def primary_expression(
+            self, children: list[ast.AST_Node | ast.AST_Terminal]):
         if children[0].lexeme.tokenType == tokens.TokenType.OPENPAR:
             assembly = CPL2CPC(
                 children[1], self.symbol_table, self.scope, self.t
@@ -441,7 +460,7 @@ machine, these may not be provided.")
             self.t = assembly.t
             self.result_t = assembly.result_t
             return assembly_code
-    
+
     def declaration(self, children:
                     list[ast.AST_Node | ast.AST_Terminal]):
         assembly = asm.Assembly()
@@ -474,7 +493,7 @@ machine, these may not be provided.")
         self.result_t = generator.result_t
 
         return assembly
-    
+
     def assignment_expression(self, children:
                               list[ast.AST_Node | ast.AST_Terminal]):
         assembly = asm.Assembly()
@@ -507,14 +526,14 @@ machine, these may not be provided.")
             assembly = assembly.fuse(asm_code)
 
         return assembly
-    
+
     def init_assignment(self, children:
                         list[ast.AST_Node | ast.AST_Terminal]):
         # len 2
         # due to syntax, children[0] is an ast_terminal
         if children[0].lexeme.value != "=":
-            raise NotImplementedError # TODO: Implement assignment operators
-        
+            raise NotImplementedError    # TODO: Implement assignment operators
+
         generator = CPL2CPC(
             children[1], self.symbol_table, self.scope, self.t
         )
