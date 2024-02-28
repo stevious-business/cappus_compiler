@@ -3,7 +3,10 @@ from . import tokens
 from cfclogger import log
 from locals import *
 
-class LexerError(TypeError): pass
+
+class LexerError(TypeError):
+    pass
+
 
 class LexemeStream:
     def __init__(self, src: source.Source):
@@ -11,20 +14,20 @@ class LexemeStream:
         self.source = src
         self.pointer = 0
         self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "", self.source)
-    
+
     def copy(self):
         ls = LexemeStream(self.source)
         ls.lexemes = self.lexemes
         ls.pointer = self.pointer
         ls.lexeme = self.lexeme
         return ls
-    
+
     def update(self, ls):
         self.lexemes = ls.lexemes
         self.pointer = ls.pointer
         self.lexeme = ls.lexeme
         log(LOG_BASE, f"Updating lstream with ptr {self.pointer}")
-    
+
     def consume_lexeme(self) -> tokens.Lexeme:
         try:
             self.lexeme = self.lexemes[self.pointer]
@@ -35,20 +38,22 @@ class LexemeStream:
             ))
             return self.lexeme
         except IndexError:
-            self.lexeme = tokens.Lexeme(tokens.TokenType.EOF, "EOF", self.source)
+            self.lexeme = tokens.Lexeme(
+                tokens.TokenType.EOF, "EOF", self.source
+            )
             return self.lexeme
-    
+
     def get_lexemes(self):
         """Returns current list of lexemes"""
         return self.lexemes
-    
+
     def findall(self) -> list[tokens.Lexeme]:
         """Finds all lexemes in source"""
         while not self.source.peek() == "EOF":
             if self.find_next().tokenType == tokens.TokenType.INVALID:
                 raise LexerError("Error while lexing (See above for details)!")
         return self.lexemes
-    
+
     def find_next(self) -> tokens.Lexeme:
         char = self.source.get()
         value = char
@@ -91,7 +96,7 @@ class LexemeStream:
             if tokenType == tokens.TokenType.FLOAT:
                 if self.source.peek() != "f":
                     raise SyntaxError("Invalid notation for float at "
-                                      +self.source.get_pos())
+                                      + self.source.get_pos())
                 else:
                     value += self.source.get()
             lexeme = tokens.Lexeme(tokenType, value, self.source)
@@ -113,9 +118,9 @@ class LexemeStream:
             return lexeme
         # operators and arithmetics
         elif char + self.source.peek() + self.source.peek(2) \
-            in tokens.TokenList.TRIPLES:
+                in tokens.TokenList.TRIPLES:
             lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR,
-                                   char+self.source.peek()+
+                                   char + self.source.peek() +
                                    self.source.peek(2),
                                    self.source)
             self.source.get()
@@ -129,13 +134,12 @@ class LexemeStream:
             self.source.get()
             self.lexemes.append(lexeme)
             return lexeme
-        
         elif char in tokens.TokenList.SINGLES:
             lexeme = tokens.Lexeme(tokens.TokenType.OPERATOR, char,
                                    self.source)
             self.lexemes.append(lexeme)
             return lexeme
-        
+
         else:
             tokenType = tokens.from_string(char)
             if tokenType is tokens.TokenType.INVALID:

@@ -2,6 +2,7 @@ from enum import Enum, auto
 
 from cfclogger import *
 
+
 class TokenType(Enum):
     DOT = auto()
     COMMA = auto()
@@ -21,6 +22,7 @@ class TokenType(Enum):
     FLOAT = auto()
     BOOL = auto()
     ENUMERATION = auto()
+
 
 class TokenList:
     KEYWORDS = [
@@ -89,6 +91,7 @@ class TokenList:
 
     CLOSEPARS = (")", "]", "}")
 
+
 class Lexeme:
     def __init__(self, tokenType: TokenType, value: str, src):
         self.tokenType = tokenType
@@ -96,6 +99,7 @@ class Lexeme:
         self.src = src
         self.ptr = self.src.ptr
         self.stamp = src.get_pos()
+
 
 def from_string(str_: str):
     """Returns a TokenType of which <str_> is a valid value"""

@@ -38,3 +38,5 @@ opcodes:
 - MDI
 - POW
 - PWI (POW imm)
+- INC (ncrement)
+- DEC (decrement)

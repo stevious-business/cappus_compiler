@@ -481,25 +481,39 @@ machine, these may not be provided.")
         name_node, initialization_node = children
         name = name_node.lexeme.value
         modifiable = self.symbol_table.by_name(name)
-        generator = CPL2CPC(
-            initialization_node, self.symbol_table, self.scope, self.t,
-            modifiable=modifiable.var_t
-        )
-        asm_code = generator.generate()
-        assembly = assembly.fuse(asm_code)
-        self.t = generator.t
-        self.result_t = generator.result_t
+        if isinstance(initialization_node, ast.AST_Terminal):
+            operator_lexeme = initialization_node.lexeme
+            log(LOG_VERB,
+                f"Found postfix @ {operator_lexeme.stamp}!")
+            assert operator_lexeme.tokenType \
+                == tokens.TokenType.OPERATOR
+            if operator_lexeme.value == "++":
+                log(LOG_BASE, "Postfix type '++'")
+                assembly.add_line(f"INC T{modifiable.var_t}")
+            elif operator_lexeme.value == "--":
+                log(LOG_BASE, "Postfix type '--'")
+                assembly.add_line(f"DEC T{modifiable.var_t}")
+            else:
+                log(LOG_FAIL, f"Invalid postfix '{operator_lexeme.value}'")
+                raise ValueError
+        else:
+            generator = CPL2CPC(
+                initialization_node, self.symbol_table, self.scope, self.t,
+                modifiable=modifiable.var_t
+            )
+            asm_code = generator.generate()
+            self.t = generator.t
+            self.result_t = generator.result_t
+            assembly = assembly.fuse(asm_code)
 
         return assembly
     
     def init_assignment(self, children:
                         list[ast.AST_Node | ast.AST_Terminal]):
-        if len(children) == 1:
-            raise NotImplementedError # TODO: Implement
         # len 2
         # due to syntax, children[0] is an ast_terminal
         if children[0].lexeme.value != "=":
-            raise NotImplementedError # TODO: Implement
+            raise NotImplementedError # TODO: Implement assignment operators
         
         generator = CPL2CPC(
             children[1], self.symbol_table, self.scope, self.t

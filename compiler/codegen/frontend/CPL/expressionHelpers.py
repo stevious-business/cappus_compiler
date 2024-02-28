@@ -1,5 +1,3 @@
-from typing import Any
-
 class ExpressionHelper:
     def logical_or(self, a: int, b: int) -> int:
         return a or b

@@ -1,0 +1,4 @@
+main:
+    INC T0
+    DEC T1
+    RET
