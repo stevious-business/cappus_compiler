@@ -21,7 +21,7 @@ The `get()` method returns the next character in the file, i. e. the character t
 The `peek(depth=1)` method behaves similarly to the `get()` method, the most notable difference being that `get()` also increments the object's internal pointer.
 Additionally, the `peek()` method offers for use with the keyword argument _depth_, which will obtain a character at position _internalPointer+depth_ in the file. _depth_ defaults to 1.
 - **Obtaining file position / stamp**: <br>
-The `get_pos()` method returns a string in the format: `\<filename> \<line>:\<column>`, which is useful for debugging and producing helpful errors.
+The `get_pos()` method returns a string in the format: `<filename> <line>:<column>`, which is useful for debugging and producing helpful errors.
 
 ### Lexer
 Is very _baller_.

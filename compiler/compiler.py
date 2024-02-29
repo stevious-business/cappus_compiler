@@ -1,5 +1,3 @@
-from re import findall
-
 from .lexer import lexer, source
 from .parser import parser, ast
 from .codegen import asm
@@ -9,9 +7,11 @@ from .codegen.frontend.CPL.generators import CPL2CPC
 from cfclogger import *
 from locals import *
 
+
 def fmt(lexeme: lexer.tokens.Lexeme):
     return sfmt(lexeme.tokenType.name, 15)+sfmt(lexeme.value, 25) \
-            +lexeme.stamp
+            + lexeme.stamp
+
 
 def compile(file):
     global DBG
@@ -19,7 +19,7 @@ def compile(file):
     OPTIONS = CustomDebuggingOptions
 
     DBG.set_floor(OPTIONS.FLOOR)
-    
+
     DBG.set(OPTIONS.LVL_SOURCE_FETCH)
     log(LOG_INFO, "Setting up...")
     log(LOG_DEBG, f"Fetching source from {file.name}...", end="")
@@ -31,7 +31,7 @@ def compile(file):
     log(LOG_DEBG, "Building Lexeme stream...", end="")
     lstream = lexer.LexemeStream(src)
     log(LOG_DEBG, "Done!", True)
-    
+
     log(LOG_DEBG, "Finding Lexemes...")
     lexemes = lstream.findall()
     DBG.set(OPTIONS.LVL_LEXOUT)
@@ -54,7 +54,7 @@ def compile(file):
     cpc = CPL2CPC(syntax_tree)
     assembly: asm.Assembly = cpc.generate()
     log(LOG_INFO, "Done!")
-    
+
     DBG.set(OPTIONS.LVL_SYMTABOUT)
     log(LOG_DEBG, "Final Symbol Table:")
     log_indent()
@@ -66,7 +66,7 @@ def compile(file):
     log(LOG_DEBG, "Generated assembly:")
     assembly.niceout(LOG_DEBG, cpc)
     log(LOG_DEBG, "End")
-    
+
     DBG.set(OPTIONS.FLOOR)
     log(LOG_INFO, "Compilation successful!")
 

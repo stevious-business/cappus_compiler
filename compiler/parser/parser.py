@@ -9,11 +9,12 @@ from .cache import Cache
 
 cache = Cache()
 
+
 @logAutoIndent
 def generate_rule(grammar, lstream, possSet, node, possPreset={}):
     global cache
     # possPreset: dict[str: (lsptr, node)]
-    for poss in possSet: # poss - all are true
+    for poss in possSet:    # poss - all are true
         if possPreset.get(poss, None) is not None:
             # preset is there
             node.add_child(possPreset[poss][1])
@@ -26,7 +27,7 @@ def generate_rule(grammar, lstream, possSet, node, possPreset={}):
                 raise SyntaxError("Expected identifier, got %s" % (
                     lexeme.tokenType.name
                 ))
-            n = AST_Terminal(node, lexeme) # construct terminal
+            n = AST_Terminal(node, lexeme)  # construct terminal
             node.add_child(n)
             log(LOG_VERB, f"Parsed identifier {lexeme.value}")
             log(LOG_DEBG, "Found an <identifier>!")
@@ -36,7 +37,7 @@ def generate_rule(grammar, lstream, possSet, node, possPreset={}):
                 raise SyntaxError("Expected integer, got %s" % (
                     lexeme.tokenType.name
                 ))
-            n = AST_Terminal(node, lexeme) # construct terminal
+            n = AST_Terminal(node, lexeme)  # construct terminal
             node.add_child(n)
             log(LOG_VERB, f"Parsed integer {lexeme.value}")
             log(LOG_DEBG, "Found an <integer-constant>!")
@@ -46,7 +47,7 @@ def generate_rule(grammar, lstream, possSet, node, possPreset={}):
                 raise SyntaxError("Expected string, got %s" % (
                     lexeme.tokenType.name
                 ))
-            n = AST_Terminal(node, lexeme) # construct terminal
+            n = AST_Terminal(node, lexeme)  # construct terminal
             node.add_child(n)
             log(LOG_VERB, f"Parsed string {lexeme.value}")
             log(LOG_DEBG, "Found a <string>!")
@@ -56,7 +57,7 @@ def generate_rule(grammar, lstream, possSet, node, possPreset={}):
                 raise SyntaxError("Expected float, got %s" % (
                     lexeme.tokenType.name
                 ))
-            n = AST_Terminal(node, lexeme) # construct terminal
+            n = AST_Terminal(node, lexeme)  # construct terminal
             node.add_child(n)
             log(LOG_VERB, f"Parsed float {lexeme.value}")
             log(LOG_DEBG, "Found a <floating-constant>!")
@@ -66,7 +67,7 @@ def generate_rule(grammar, lstream, possSet, node, possPreset={}):
                 raise SyntaxError("Expected bool, got %s" % (
                     lexeme.tokenType.name
                 ))
-            n = AST_Terminal(node, lexeme) # construct terminal
+            n = AST_Terminal(node, lexeme)  # construct terminal
             node.add_child(n)
             log(LOG_VERB, f"Parsed bool {lexeme.value}")
             log(LOG_DEBG, "Found a <boolean-constant>!")
@@ -90,7 +91,7 @@ def generate_rule(grammar, lstream, possSet, node, possPreset={}):
             try:
                 while True:
                     n = genASTNode(node, grammar, poss[1:-2],
-                                    lstream)
+                                   lstream)
                     node.add_child(n)
                     raise_ = False
             except SyntaxError:
@@ -104,17 +105,18 @@ def generate_rule(grammar, lstream, possSet, node, possPreset={}):
             next_lexeme = lstream.consume_lexeme()
             if rule_type != next_lexeme.tokenType:
                 raise SyntaxError("Invalid Token Type: "
-                                    +rule_type.name+" "
-                                    +next_lexeme.tokenType.name)
+                                  + rule_type.name + " "
+                                  + next_lexeme.tokenType.name)
             if poss != next_lexeme.value:
                 raise SyntaxError("Invalid Lexeme Value: "
-                                    +poss+" "
-                                    +next_lexeme.value)
+                                  + poss + " "
+                                  + next_lexeme.value)
             # Valid, continue
             log(LOG_VERB,
                 f"Parsed {rule_type.name}: {next_lexeme.value}")
-            n = AST_Terminal(node, next_lexeme) # construct terminal
+            n = AST_Terminal(node, next_lexeme)     # construct terminal
             node.add_child(n)
+
 
 def obtain_subsets(generator_type: str, rule_set):
     non_recursive_subSets = []
@@ -126,18 +128,23 @@ def obtain_subsets(generator_type: str, rule_set):
             non_recursive_subSets.append(possSet)
     return non_recursive_subSets, recursive_subSets
 
+
 def check_cache(generator_type, ls: lexer.LexemeStream):
     global cache
     cache_entry = cache[(generator_type, ls.pointer)]
     if cache_entry is not None:
         log(LOG_DEBG,
-            f"Cache hit for {generator_type}/{ls.pointer}; size: {cache.size()} bytes")
+            f"Cache hit for {generator_type}/{ls.pointer};"
+            + f"size: {cache.size()} bytes")
         if cache_entry == 0:
-            raise SyntaxError(f"[CACHED] Invalid path for {generator_type}! [200]")
+            raise SyntaxError(
+                f"[CACHED] Invalid path for {generator_type}! [200]"
+            )
         else:
             node, ptr = cache_entry
             ls.pointer = ptr
             return node
+
 
 def gen_terminal(generator_type, grammar, ls, parent):
     if generator_type not in grammar.keys():
@@ -158,25 +165,29 @@ def gen_terminal(generator_type, grammar, ls, parent):
                 ))
         # Valid, continue
         node = AST_Node(generator_type, parent, [])
-        n = AST_Terminal(node, next_lexeme) # construct terminal
+        n = AST_Terminal(node, next_lexeme)     # construct terminal
         return n
 
+
 def genASTNode(parent, grammar: dict, generator_type: str,
-           ls: lexer.LexemeStream) -> AST_Node:
+               ls: lexer.LexemeStream) -> AST_Node:
 
     log(LOG_DEBG, f"Going into {generator_type}...")
 
-    if ret := check_cache(generator_type, ls): return ret
+    if ret := check_cache(generator_type, ls):
+        return ret
 
-    if ret := gen_terminal(generator_type, grammar, ls, parent): return ret
-    
+    if ret := gen_terminal(generator_type, grammar, ls, parent):
+        return ret
+
     rule_set = grammar[generator_type]
     non_recursive_subSets, recursive_subSets = obtain_subsets(generator_type,
                                                               rule_set)
-    
+
     recursiveNode: AST_Node = None
     for i, possSet in enumerate(rule_set):
-        if possSet not in non_recursive_subSets: continue
+        if possSet not in non_recursive_subSets:
+            continue
         lstream = ls.copy()
         node = AST_Node(generator_type, parent, [])
         try:
@@ -187,23 +198,26 @@ def genASTNode(parent, grammar: dict, generator_type: str,
         else:
             recursiveNode = node
             break
-    
+
     if recursiveNode is None:
         log(LOG_DEBG, f"[F] Type {generator_type}, ptr {ls.pointer}")
         cache.set((generator_type, ls.pointer), 0)
         raise SyntaxError("No valid path!")
-    
+
     success = True
-    while success: # loop that will perform the recursion
+    while success:  # loop that will perform the recursion
         success = False
         for i, possSet in enumerate(rule_set):
-            if possSet not in recursive_subSets: continue
+            if possSet not in recursive_subSets:
+                continue
             # try to loop over recursive possibilities to find one that works
             lstream2 = ls.copy()
             parent_node = AST_Node(generator_type, parent, [])
             try:
                 generate_rule(grammar, lstream2, possSet, parent_node,
-                    {generator_type: (lstream.pointer, recursiveNode)})
+                              {generator_type: (
+                                  lstream.pointer, recursiveNode
+                                )})
             except SyntaxError:
                 # pf = partial failure
                 log(LOG_VERB, f"[PF] Type {generator_type}, opt {i}")
@@ -216,9 +230,10 @@ def genASTNode(parent, grammar: dict, generator_type: str,
         f"[S] Type {generator_type}, opt {i}, ptr {lstream.pointer}")
     log(LOG_BASE, "Caching successful result!")
     cache.set((generator_type, ls.pointer),
-                (recursiveNode.as_one(), lstream.pointer))
+              (recursiveNode.as_one(), lstream.pointer))
     ls.update(lstream)
     return recursiveNode.as_one()
+
 
 def parse(lstream: lexer.LexemeStream) -> AST:
     global cache
@@ -230,18 +245,19 @@ def parse(lstream: lexer.LexemeStream) -> AST:
     if grammar.get("<translation-unit>", None) is None:
         log(LOG_FAIL, "Invalid grammar! (Missing <translation-unit>)")
         raise SyntaxError
-    
+
     root = AST([])
     n = genASTNode(root, grammar, "<translation-unit>", lstream)
     root.add_child(n)
     return root
+
 
 def pretty_print(ast: AST_Node | AST, prefix="", lvl=LOG_VERB):
     """Pretty prints a syntax tree"""
     t_char = "├── "
     i_char = "│   "
     l_char = "└── "
-    empty  = "    "
+    empty = "    "
     if prefix == "":
         log(lvl, ast.name)
     children = ast.get_children()

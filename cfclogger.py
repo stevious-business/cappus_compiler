@@ -7,49 +7,53 @@ from locals import *
 launch = perf_counter()
 
 log_indent_count = 0
-
 log_spacing = 4
-
 log_file = None
+
 
 class Timer:
     def __init__(self):
         self._timer = perf_counter()
-    
+
     def reset(self):
         self._timer = perf_counter()
 
     def time_since_launch(self):
         return perf_counter() - self._timer
 
-timer = Timer()
 
 def sfmt(str_: str, len_: int, ws=False):
     strlen = len(str_)
     remain = len_ - strlen
     return str_ + remain * (" " if ws else ".")
 
+
 def ts() -> str:
     global launch
     odd_len_text = f"{round(perf_counter()-launch, 4)}"
     return odd_len_text.zfill(10)
 
+
 def log_indent():
     global log_indent_count
     log_indent_count += log_spacing
+
 
 def log_dedent():
     global log_indent_count
     log_indent_count -= log_spacing
 
+
 def setup_logger(LOG_TO_FILE=True):
     global log_file
     log_file = open("compilation.log", "w", encoding="utf-8")
+
 
 def exit_logger():
     global log_file
     log_file.flush()
     log_file.close()
+
 
 def log(level, text, nts=False, use_indent=True, **kwargs):
     global log_file
@@ -70,7 +74,7 @@ def log(level, text, nts=False, use_indent=True, **kwargs):
             LOG_WARN: "WARN",
             LOG_FAIL: "FAIL"
         }
-        if nts: # No time stamp (no prefix)
+        if nts:     # No time stamp (no prefix)
             print(f"{level_colors[level]}{text}\033[0m", **kwargs)
             return
         t = ts()
@@ -85,7 +89,9 @@ def log(level, text, nts=False, use_indent=True, **kwargs):
         print(final_text, **kwargs)
         log_file.write(uncolored_text+"\n")
 
+
 def logAutoIndent(function):
+
     @wraps(function)
     def inner(*args, **kwargs):
         log_indent()
@@ -98,3 +104,6 @@ def logAutoIndent(function):
             log_dedent()
             return r
     return inner
+
+
+timer = Timer()
