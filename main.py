@@ -29,7 +29,7 @@ if __name__ == "__main__":
     mode = None
     if len(args):
         mode = args[0].lower()
-    
+
     if mode not in ("help", "--help"):
         print()
         log(LOG_INFO, "Launching Compiler For C.A.P.P.U.S.!")
