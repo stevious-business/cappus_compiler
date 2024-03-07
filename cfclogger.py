@@ -79,7 +79,7 @@ def log(level, text, nts=False, use_indent=True, **kwargs):
             return
         t = ts()
         print_indent_count = log_indent_count*use_indent
-        pre = f"[\033[36m{SW_NAME}\033[0m::" \
+        pre = f"\033[0m[\033[36m{SW_NAME}\033[0m::" \
             + f"\033[32m{t}\033[0m::" \
             + f"{level_colors[level]+level_texts[level]}\033[0m]"
         final_text = f"{pre} {' '*print_indent_count} \

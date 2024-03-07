@@ -1,0 +1,30 @@
+--- START META ---
+
+NAME translation_unit
+DESCRIPTION A unit test
+
+--- END ---
+--- START TEST_CODE ---
+
+/*
+just an empty file to make sure that
+translation unit codegen
+works
+*/
+
+--- END ---
+--- START EXPECTED_AST ---
+
+{"_type": "<class 'compiler.parser.ast.AST'>", "_object": {"name": "root", "children": [{"_type": "<class 'compiler.parser.ast.AST_Terminal'>", "_object": {"parent": {"_type": "<class 'compiler.parser.ast.AST_Node'>", "_object": {"parent": "<ancestor>", "children": ["<ancestor>"], "name": "<translation-unit>"}}, "children": [], "name": "EOF: EOF", "lexeme": {"_type": "<class 'compiler.lexer.tokens.Lexeme'>", "_object": {"tokenType": {"_type": "<enum 'TokenType'>", "_object": {}}, "value": "EOF", "src": {"_type": "<class 'compiler.lexer.source.Source'>", "_object": {"data": "/*\njust an empty file to make sure that\ntranslation unit codegen\nworks\n*/", "file": {"_type": "<class '_io.StringIO'>", "_object": {}}, "filename": "(string)", "length": "73", "ptr": "72", "chars": ["/", "*", "\n", "j", "u", "s", "t", " ", "a", "n", " ", "e", "m", "p", "t", "y", " ", "f", "i", "l", "e", " ", "t", "o", " ", "m", "a", "k", "e", " ", "s", "u", "r", "e", " ", "t", "h", "a", "t", "\n", "t", "r", "a", "n", "s", "l", "a", "t", "i", "o", "n", " ", "u", "n", "i", "t", " ", "c", "o", "d", "e", "g", "e", "n", "\n", "w", "o", "r", "k", "s", "\n", "*", "/"], "line": "5", "col": "2"}}, "ptr": "72", "stamp": "<(string)> 5:2"}}}}]}}
+
+--- END ---
+--- START EXPECTED_INTERMEDIATE ---
+
+{"_type": "<class 'compiler.codegen.asm.Assembly'>", "_object": {"lines": [], "indenture": "0", "marked": "False", "marker": "0"}}
+
+--- END ---
+--- START EXPECTED_SYM_TAB ---
+
+{"_type": "<class 'compiler.codegen.symbol_table.SymbolTable'>", "_object": {"entries": [{"_type": "<class 'compiler.codegen.symbol_table.Symbol'>", "_object": {"type_": {"_type": "<enum 'SymbolTypes'>", "_object": {}}, "liveness_begin": "None", "liveness_end": "None", "token": "None", "name": "global", "scope": "None", "datatype": "void", "var_t": "-1"}}]}}
+
+--- END ---

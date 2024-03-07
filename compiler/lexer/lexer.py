@@ -63,6 +63,8 @@ class LexemeStream:
                 self.source.get()
             char = self.source.get()
             value = char
+        if char == "EOF":
+            return tokens.Lexeme(tokens.TokenType.EOF, "EOF", self.source)
         # check for identifiers / keywords
         if char.isalpha() or char == "_":
             tokenType = tokens.TokenType.KEYWORD

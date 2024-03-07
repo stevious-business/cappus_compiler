@@ -2,22 +2,55 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "cppdbg",
+      "name": "CFC: Compile file [Preset]",
+      "type": "debugpy",
       "request": "launch",
-      "args": [],
-      "stopAtEntry": false,
-      "externalConsole": true,
-      "cwd": "d:/Minecraft/CRS/cappus_compiler",
-      "program": "d:/Minecraft/CRS/cappus_compiler/build/Debug/outDebug",
-      "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
+      "program": "main.py",
+      "console": "integratedTerminal",
+      "args": [
+        "file-preset"
+      ]
+    },
+    {
+      "name": "CFC: Compile file [Input]",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "main.py",
+      "console": "integratedTerminal",
+      "args": [
+      ]
+    },
+    {
+      "name": "CFC: Perform unit tests",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "main.py",
+      "console": "integratedTerminal",
+      "args": [
+        "perform-unit-tests"
+      ]
+    },
+    {
+      "name": "CFC: Singular unit test",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "main.py",
+      "console": "integratedTerminal",
+      "args": [
+        "single-unit-test"
+      ]
+    },
+    {
+      "name": "CFC: Create unit test",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "main.py",
+      "console": "integratedTerminal",
+      "args": [
+        "create-unit-test",
+        "code/tests/expressions/addition.cpl",
+        "expressions/addition",
+        "ai"
       ]
     }
   ]

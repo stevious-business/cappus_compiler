@@ -1,0 +1,31 @@
+--- START META ---
+
+NAME expressions/addition
+DESCRIPTION A unit test
+
+--- END ---
+--- START TEST_CODE ---
+
+int main() {
+    1 + 2;
+}
+
+int subtraction_order() {
+    1 - 2 + 1;
+}
+
+int parens() {
+    1 - (2 + 1);
+}
+
+--- END ---
+--- START EXPECTED_INTERMEDIATE ---
+
+{"_type": "<class 'compiler.codegen.asm.Assembly'>", "_object": {"lines": ["main:", "    LDI T0, 3", "    RET", "subtraction_order:", "    LDI T0, 0", "    RET", "parens:", "    LDI T0, -2", "    RET"], "indenture": "0", "marked": "False", "marker": "0"}}
+
+--- END ---
+--- START EXPECTED_SYM_TAB ---
+
+{"_type": "<class 'compiler.codegen.symbol_table.SymbolTable'>", "_object": {"entries": [{"_type": "<class 'compiler.codegen.symbol_table.Symbol'>", "_object": {"type_": {"_type": "<enum 'SymbolTypes'>", "_object": {}}, "liveness_begin": "None", "liveness_end": "None", "token": "None", "name": "global", "scope": "None", "datatype": "void", "var_t": "-1"}}, {"_type": "<class 'compiler.codegen.symbol_table.Symbol'>", "_object": {"type_": "<ancestor>", "liveness_begin": "None", "liveness_end": "None", "token": "None", "name": "main", "scope": "None", "datatype": "int", "var_t": "-1"}}, {"_type": "<class 'compiler.codegen.symbol_table.Symbol'>", "_object": {"type_": "<ancestor>", "liveness_begin": "None", "liveness_end": "None", "token": "None", "name": "subtraction_order", "scope": "None", "datatype": "int", "var_t": "-1"}}, {"_type": "<class 'compiler.codegen.symbol_table.Symbol'>", "_object": {"type_": "<ancestor>", "liveness_begin": "None", "liveness_end": "None", "token": "None", "name": "parens", "scope": "None", "datatype": "int", "var_t": "-1"}}]}}
+
+--- END ---

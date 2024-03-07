@@ -1,0 +1,19 @@
+--- START META ---
+
+NAME expressions/pemdas
+DESCRIPTION A unit test
+
+--- END ---
+--- START TEST_CODE ---
+
+int main() {
+    int x;
+    2 + x * 3;
+}
+
+--- END ---
+--- START EXPECTED_INTERMEDIATE ---
+
+{"_type": "<class 'compiler.codegen.asm.Assembly'>", "_object": {"lines": ["main:", "    MLI T2, T0, 3", "    ADI T1, T1, T2", "    RET"], "indenture": "0", "marked": "False", "marker": "0"}}
+
+--- END ---
