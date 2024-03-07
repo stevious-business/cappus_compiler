@@ -7,6 +7,41 @@ LOG_FAIL = 5    # absolute failure
 LOG_SILENT_MODE = 6     # For setting floor
 
 SW_NAME = "CFC"     # Compiler For Cappus
+SW_NAME_LONG = "Compiler For C.A.P.P.U.S"
+SW_VERSION = (1, 0)
+SW_VER_STRING = ".".join([str(k) for k in SW_VERSION])
+SW_UPDATE_DATE = "7 Mar 2024"
+SW_COPYRIGHT_STRING = "© David Schroeder 2024. All rights reserved."
+SW_CONTACT_STRING = "Email me: david@tobiasschroeder.de"
+SW_SIGN_STRING = f"{SW_NAME_LONG} v{SW_VER_STRING} ({SW_UPDATE_DATE})." \
+                 + f" {SW_COPYRIGHT_STRING}\n{SW_CONTACT_STRING}"
+SW_HELP_STRING = f"""
+Displaying help for '{SW_NAME_LONG}'
+Usage: python main.py [MODE] [OPTIONS]
+
+Options for MODE:
+- 'help' / '--help':    Print this help and exit.
+- 'file-preset':        Compile a predetermined file, no input required.
+- Empty:                Compile a file at the path supplied by the user.
+- 'perform-unit-tests': Test the software using unit tests
+- 'single-unit-test':   Perform one unit test.
+    Arguments:
+    - 'UNIT_NAME':      The name of the unit test to perform.
+                        If none is given, a default will be used.
+- 'create-unit-test':   Create a unit test. The tested objects are given via
+                        the option 'EXPECTATIONS'.
+    Arguments:
+    - 'BASE_FILE':      The file path of the reference file.
+    - 'TEST_NAME':      The name of the unit test.
+    - 'EXPECTATIONS':   String using some or all of the letters 'SLAIT'.
+                        S - Source object
+                        L - Lexeme list
+                        A - Abstract Syntax Tree
+                        I - Intermediate Representation
+                        T - Symbol Table
+
+{SW_SIGN_STRING}
+"""
 
 EXPECTATIONS_TABLE = {
     "s": "SOURCE",

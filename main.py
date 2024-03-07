@@ -2,8 +2,14 @@ from os.path import exists
 from sys import exit, argv
 from re import search
 from io import StringIO
+from json import loads, dumps
 
-from unit_tests import test_all, test_one, pretty_serialized_item
+from unit_tests import (
+    test_all,
+    test_one,
+    pretty_serialized_item,
+    CONF_FILE_PATH
+)
 from compiler import compile, compile_unit_test
 from locals import *
 from cfclogger import log, timer, setup_logger, exit_logger
@@ -17,14 +23,17 @@ if __name__ == "__main__":
 
     setup_logger(True)
 
+    print(argv)
+
     progname, *args = argv
     mode = None
     if len(args):
         mode = args[0].lower()
-
-    print()
-    log(LOG_INFO, "Launching Compiler For C.A.P.P.U.S.!")
-    print()
+    
+    if mode not in ("help", "--help"):
+        print()
+        log(LOG_INFO, "Launching Compiler For C.A.P.P.U.S.!")
+        print()
 
     return_code = 0
 
@@ -33,11 +42,12 @@ if __name__ == "__main__":
     timer.reset()
 
     ALLOWED_MODES = (None, "create-unit-test", "perform-unit-tests",
-                     "file-preset", "single-unit-test")
+                     "file-preset", "single-unit-test", "help", "--help")
 
     try:
         if mode not in ALLOWED_MODES:
             log(LOG_FAIL, f"Unknown mode {mode}!")
+            log(LOG_FAIL, f"Run with --help for help.")
             exit(1)
         elif mode == "create-unit-test":
             if len(args) > 3:
@@ -70,6 +80,12 @@ if __name__ == "__main__":
                             do_indent=False
                         )
                     ))
+            with open(CONF_FILE_PATH) as f:
+                configuration = loads("".join(f.readlines()))
+            if test_name not in configuration["test_files"]:
+                configuration["test_files"].append(test_name)
+            with open(CONF_FILE_PATH, "w") as f:
+                f.writelines(dumps(configuration, indent=4))
         elif mode == "perform-unit-tests":
             # Test_all() will return 0 on success
             num_fails = test_all()
@@ -114,6 +130,9 @@ if __name__ == "__main__":
                 assembly = compile(f)
             with open(file_pref+".cal", "w") as f:
                 assembly.export(f)
+        elif mode in ("help", "--help"):
+            DBG.set_silent(True)
+            print(SW_HELP_STRING)
 
     except KeyboardInterrupt:
         print()

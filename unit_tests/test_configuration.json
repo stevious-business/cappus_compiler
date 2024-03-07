@@ -7,6 +7,11 @@
     ],
     "test_files": [
         "funcdef",
-        "addition"
+        "complicated_funcdef",
+        "expressions/addition",
+        "expressions/binary_operations",
+        "multi_funcdef",
+        "translation_unit",
+        "expressions/pemdas"
     ]
 }

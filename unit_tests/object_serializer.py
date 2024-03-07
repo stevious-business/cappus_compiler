@@ -27,15 +27,7 @@ RELATION_COLORS = {
 EXPAND_EQUALS = False
 
 
-def assert_equal_dicts(dict_a, dict_b):
-    return dict_a == dict_b
-
-
-def assert_object_equal_dict(obj, dict_):
-    return serialize_item(obj) == dict_
-
-
-def serialize_item(item, already_serialized_objects=[]):
+def serialize_item(item, already_serialized_objects):
     log(LOG_BASE, f"Serializing item {item}...")
     if isinstance(item, AST_Node):
         log(LOG_BASE, f"AST Node name {item.name}")
@@ -247,3 +239,16 @@ def pretty_print_comparison_dict(cd, pref="", root=False):
 def pretty_compare_serials(exp, got):
     comparison_dict = serial_comparison_dict(exp, got)
     pretty_print_comparison_dict(comparison_dict, root=True)
+
+
+def assert_equal_dicts(s_exp, s_got):
+    cd = serial_comparison_dict(s_exp, s_got)
+    for k in cd:
+        relation, *v = cd[k]
+        if relation is not EQUAL:
+            return False
+    return True
+
+
+def assert_object_equal_dict(obj, dict_):
+    return assert_equal_dicts(dict_, serialize_item(obj, []))

@@ -91,11 +91,14 @@ class CPL2CPC:
         if name == "main":
             if args:
                 log(LOG_WARN,
-                    "You are using arguments for the entrypoint 'main'.")
+                    "You are using arguments for the entrypoint 'main'.",
+                    use_indent=False)
                 log(LOG_WARN,
                     "When the translation unit is executed by the host \
-machine, these may not be provided.")
-                log(LOG_WARN, "This can lead to undefined behavior.")
+machine, these may not be provided.",
+                    use_indent=False)
+                log(LOG_WARN, "This can lead to undefined behavior.",
+                    use_indent=False)
         self.symbol_table.add_symbol(st.Symbol(st.SymbolTypes.LABEL, name,
                                      dt=self.dt_from_ast(type_spec)))
         assembly = asm.Assembly([
