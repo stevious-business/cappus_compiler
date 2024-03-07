@@ -4,8 +4,39 @@ LOG_DEBG = 2    # general structure and program trace
 LOG_INFO = 3    # user-level output
 LOG_WARN = 4    # important mishaps
 LOG_FAIL = 5    # absolute failure
+LOG_SILENT_MODE = 6     # For setting floor
 
 SW_NAME = "CFC"     # Compiler For Cappus
+
+EXPECTATIONS_TABLE = {
+    "s": "SOURCE",
+    "l": "LEXEMES",
+    "a": "AST",
+    "i": "INTERMEDIATE",
+    "t": "SYM_TAB"
+}
+
+META_BLOCK = """--- START META ---
+
+NAME %s
+DESCRIPTION A unit test
+
+--- END ---
+"""
+
+CODE_BLOCK = """--- START TEST_CODE ---
+
+%s
+
+--- END ---
+"""
+
+EXPECTATION_BLOCK = """--- START EXPECTED_%s ---
+
+%s
+
+--- END ---
+"""
 
 
 class DebugOptions:
@@ -20,8 +51,15 @@ class DebugOptions:
     LVL_ASMOUT = 0
 
 
-class VerboseOptions(DebugOptions):
-    pass
+class VerboseOutputOptions(DebugOptions):
+    FLOOR = LOG_VERB
+
+
+class DebugOutputOptions(DebugOptions):
+    FLOOR = LOG_DEBG
+
+class WarningOutputOptions(DebugOptions):
+    FLOOR = LOG_WARN
 
 
 class OnlyFatalOptions(DebugOptions):
@@ -67,10 +105,14 @@ class DBGLVL:
     def __init__(self, lvl):
         self.lvl = lvl
         self.floor = 0
+        self.silent = False
 
     def set(self, lvl):
         if lvl >= self.floor:
             self.lvl = lvl
+    
+    def set_silent(self, is_silent):
+        self.silent = is_silent
 
     def set_floor(self, lvl):
         self.floor = lvl
@@ -78,7 +120,7 @@ class DBGLVL:
             self.lvl = lvl
 
     def get(self):
-        return self.lvl
+        return LOG_SILENT_MODE if self.silent else self.lvl
 
 
 DBG = DBGLVL(LOG_DEBG)

@@ -1,0 +1,12 @@
+{
+    "filename_patterns": [
+        "unit_tests/tests/%NAME%.unit_test",
+        "unit_tests/tests/test_%NAME%.unit_test",
+        "unit_tests/tests/%NAME%.txt",
+        "unit_tests/tests/expressions/%NAME%.unit_test"
+    ],
+    "test_files": [
+        "funcdef",
+        "addition"
+    ]
+}

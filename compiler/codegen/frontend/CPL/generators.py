@@ -61,7 +61,6 @@ class CPL2CPC:
             self,
             children: list[ast.AST_Node | ast.AST_Terminal]) -> asm.Assembly:
         assembly = asm.Assembly()
-        assembly.mark("t-u")
         for child in children:
             if isinstance(child, ast.AST_Terminal):
                 if child.lexeme.value == "EOF":

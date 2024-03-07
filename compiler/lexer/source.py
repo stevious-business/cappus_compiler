@@ -1,8 +1,13 @@
+from io import TextIOWrapper
+
 class Source:
     def __init__(self, file):
         self.data = file.read()
         self.file = file
-        self.filename = file.name
+        if isinstance(file, TextIOWrapper):
+            self.filename = file.name
+        else:
+            self.filename = "(string)"
         self.length = len(self.data)
         self.ptr = 0
         self.chars = list(self.data)
@@ -11,7 +16,10 @@ class Source:
 
     def get(self, _fp=False, depth=1, com=False) -> str:
         if self.ptr < self.length:
-            c: str = self.chars[self.ptr+depth-1]
+            if self.ptr+depth-1 < self.length:
+                c: str = self.chars[self.ptr+depth-1]
+            else:
+                c = "EOF"
         else:
             if _fp:
                 # if we were coming from peek function,

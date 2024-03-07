@@ -1,0 +1,19 @@
+--- START META ---
+
+NAME funcdef
+DESCRIPTION A unit test
+
+--- END ---
+--- START TEST_CODE ---
+
+/*define a function main() which should return a void*/
+void main() {
+}
+
+
+--- END ---
+--- START EXPECTED_INTERMEDIATE ---
+
+{"_type": "<class 'compiler.codegen.asm.Assembly'>", "_object": {"lines": ["main:", "    RET"], "indenture": "0", "marked": "False", "marker": "0"}}
+
+--- END ---
