@@ -58,6 +58,7 @@ class VerboseOutputOptions(DebugOptions):
 class DebugOutputOptions(DebugOptions):
     FLOOR = LOG_DEBG
 
+
 class WarningOutputOptions(DebugOptions):
     FLOOR = LOG_WARN
 
@@ -110,7 +111,7 @@ class DBGLVL:
     def set(self, lvl):
         if lvl >= self.floor:
             self.lvl = lvl
-    
+
     def set_silent(self, is_silent):
         self.silent = is_silent
 

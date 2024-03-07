@@ -1,5 +1,6 @@
 from io import TextIOWrapper
 
+
 class Source:
     def __init__(self, file):
         self.data = file.read()

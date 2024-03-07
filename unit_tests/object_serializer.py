@@ -76,7 +76,7 @@ def serialize_object(obj, already_serialized_objects=[]) -> dict:
         log(LOG_BASE, key)
         item = obj.__getattribute__(key)
         res_dict[key] = serialize_item(item, already_serialized_objects)
-    return {"_type": str(type(obj)),"_object": res_dict}
+    return {"_type": str(type(obj)), "_object": res_dict}
 
 
 def pretty_serialized_item(obj, do_indent=True):
@@ -102,13 +102,13 @@ def pretty_print(item, key="", prefix="", last=True, root=True):
         log(LOG_DEBG, f"{prefix+list_char}{key}")
         for i, key in enumerate(item):
             pretty_print(item[key], key, prefix+follow_char,
-                              i == len(item) - 1, root=False)
+                         i == len(item) - 1, root=False)
     elif isinstance(item, list) or isinstance(item, tuple) \
             or isinstance(item, set):
         log(LOG_DEBG, f"{prefix+list_char}{key}")
         for i, key in enumerate(item):
             pretty_print(key, i, prefix+follow_char,
-                              i == len(item) - 1, root=False)
+                         i == len(item) - 1, root=False)
 
 
 def assert_equal(a, b):
@@ -139,7 +139,7 @@ def get_comparison_dict(exp, got):
         expected_value = exp[key]
         got_value = got.get(key, not_received)
         if got_value is not not_received:
-            if type(expected_value) != type(got_value):
+            if type(expected_value) is not type(got_value):
                 res_dict[key] = (
                     WRONG_TYPE,
                     str(type(expected_value)),
@@ -228,7 +228,7 @@ def pretty_print_comparison_dict(cd, pref="", root=False):
     i_char = "│   "
     l_char = "└── "
     empty = "    "
-    
+
     for i, key in enumerate(cd):
         last = i == len(cd) - 1
         list_char = l_char if last else t_char

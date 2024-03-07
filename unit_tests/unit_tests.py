@@ -23,16 +23,16 @@ class Module:
         self.module_type = ""
         self.lines: list[str] = []
         self.parent = None
-    
+
     def set_parent(self, parent):
         self.parent = parent
-    
+
     def set_module_type(self, mtype):
         self.module_type = mtype
-    
+
     def add_lines(self, lines):
         self.lines += lines
-    
+
     def reinit(self):
         # Effectively load this module.
         if self.module_type == "META":
@@ -45,10 +45,10 @@ class Module:
                     self.parent.description = desc.removesuffix("\n")
                 elif len(line.split()) == 0:
                     log(LOG_WARN, f"Empty line in unit test meta "
-                                + f"(Test name {self.parent.test_name})")
+                        + f"(Test name {self.parent.test_name})")
                 else:
                     log(LOG_WARN, f"Invalid argument for unit test meta: "
-                                 + line.split()[0])
+                        + line.split()[0])
         elif self.module_type == "TEST_CODE":
             self.parent.code = "".join(self.lines)
         elif self.module_type.startswith("EXPECTED_"):
@@ -58,7 +58,7 @@ class Module:
                 ] = loads("".join(self.lines))
             except JSONDecodeError:
                 log(LOG_FAIL, f"Unable to parse {self.module_type} "
-                            + f"(Unit test {self.parent.name})")
+                    + f"(Unit test {self.parent.name})")
                 raise SyntaxError("Bad unit test syntax!")
 
 
@@ -77,15 +77,15 @@ class UnitTest:
             if module.module_type == type_:
                 return module
         return None
-    
+
     def add_module(self, module: Module):   # TODO: max. 1 module of each type
         self.modules.append(module)
         module.set_parent(self)
-    
+
     def init_modules(self):
         for module in self.modules:
             module.reinit()
-    
+
     def execute(self, silent=True):
         log(LOG_DEBG, f"Starting unit test {self.name}...")
         try:
@@ -101,30 +101,21 @@ class UnitTest:
             raise
         n_fails = 0
         for expectation_name in self.expectations:
+            log(LOG_DEBG, f"-> Comparing expectation {expectation_name}...")
             expectation_module = self.expectations[expectation_name]
             if (returned_object := available_criteria.get(
                     expectation_name, None)) is not None:
-                if not assert_object_equal_dict(returned_object, 
+                if not assert_object_equal_dict(returned_object,
                                                 expectation_module):
                     n_fails += 1
                     log(LOG_FAIL, f"Differing criteria: {expectation_name}")
-                    """log(LOG_DEBG, f"Expected:")
-                    expected_str = str(pretty_serialized_item(
-                        expectation_module))
-                    for line in expected_str.split("\n"):
-                        log(LOG_DEBG, line)
-                    received_str = str(pretty_serialized_item(
-                        returned_object))
-                    log(LOG_DEBG, f"Received:")
-                    for line in received_str.split("\n"):
-                        log(LOG_DEBG, line)"""
                     pretty_compare_serials(
-                        expectation_module, 
+                        expectation_module,
                         serialize_item(returned_object, [])
                     )
             else:
                 log(LOG_DEBG, f"Compilation failed at an earlier stage; "
-                            + f"{expectation_name} was not yielded.")
+                    + f"{expectation_name} was not yielded.")
                 n_fails += 1
         return n_fails
 
@@ -209,13 +200,13 @@ def test_all() -> int:
             failed_tests.append(test_filename)
             log(LOG_INFO, f"\033[41mFailure for test {test_filename}!")
         log(LOG_INFO, "", True)
-    
+
     log(LOG_INFO,
         f"{len(succeeded_tests)}/{num_tests} unit tests have succeeded.")
-    
+
     if len(failed_tests):
         log(LOG_WARN, "Some unit tests have failed. Consider debugging.")
-    
+
     log(LOG_INFO, "", True)
 
     return len(failed_tests)

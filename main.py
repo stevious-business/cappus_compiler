@@ -3,7 +3,7 @@ from sys import exit, argv
 from re import search
 from io import StringIO
 
-from unit_tests import test_all, test_one,pretty_serialized_item
+from unit_tests import test_all, test_one, pretty_serialized_item
 from compiler import compile, compile_unit_test
 from locals import *
 from cfclogger import log, timer, setup_logger, exit_logger
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             num_fails = test_all()
             success = num_fails == 0
             if not success:
-                if not "--ignore-unit-fails" in args:
+                if "--ignore-unit-fails" not in args:
                     log(
                         LOG_FAIL,
                         f"{num_fails} unit tests have failed."
