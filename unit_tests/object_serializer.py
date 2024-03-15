@@ -252,3 +252,8 @@ def assert_equal_dicts(s_exp, s_got):
 
 def assert_object_equal_dict(obj, dict_):
     return assert_equal_dicts(dict_, serialize_item(obj, []))
+
+
+def pretty_compare_objects(obj1, obj2):     # Can be used on any python object
+    cd = serial_comparison_dict(serialize_item(obj1), serialize_item(obj2))
+    pretty_print_comparison_dict(cd, root=True)
