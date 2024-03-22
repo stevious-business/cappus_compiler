@@ -3,6 +3,7 @@ from io import TextIOWrapper, StringIO
 from .lexer import lexer, source
 from .parser import parser, ast
 from .codegen import asm
+from .preprocessor import preprocessed_code_from_file
 
 from .codegen.frontend.CPL.generators import CPL2CPC
 
@@ -22,11 +23,12 @@ def fmt(lexeme: lexer.tokens.Lexeme):
 
 def compile_unit_test(file, silent=True, update_floor=True):
     global DBG
+    preprocessed_text = preprocessed_code_from_file(file)
     if silent:
         DBG.set_silent(True)
     try:
 
-        assert isinstance(file, TextIOWrapper) or isinstance(file, StringIO)
+        #assert isinstance(file, TextIOWrapper) or isinstance(file, StringIO)
         assert isinstance(update_floor, bool)
 
         OPTIONS = SELECTED_OPTIONS
@@ -38,9 +40,11 @@ def compile_unit_test(file, silent=True, update_floor=True):
         log(LOG_INFO, "Setting up...")
         if isinstance(file, TextIOWrapper):
             log(LOG_DEBG, f"Fetching source from {file.name}...", end="")
+            file_name = file.name
         else:
             log(LOG_DEBG, f"Fetching source from <string>...", end="")
-        src: source.Source = source.Source(file)
+            file_name = "(string)"
+        src: source.Source = source.Source(preprocessed_text, file_name)
         log(LOG_DEBG, "Done!", True)
         yield ("SOURCE", src)
 
@@ -112,6 +116,8 @@ def compile(file, update_floor=True):
     assert isinstance(file, TextIOWrapper) or isinstance(file, StringIO)
     assert isinstance(update_floor, bool)
 
+    preprocessed_text = preprocessed_code_from_file(file)
+
     OPTIONS = SELECTED_OPTIONS
 
     if update_floor:
@@ -121,9 +127,11 @@ def compile(file, update_floor=True):
     log(LOG_INFO, "Setting up...")
     if isinstance(file, TextIOWrapper):
         log(LOG_DEBG, f"Fetching source from {file.name}...", end="")
+        file_name = file.name
     else:
         log(LOG_DEBG, f"Fetching source from <string>...", end="")
-    src: source.Source = source.Source(file)
+        file_name = "(string)"
+    src: source.Source = source.Source(preprocessed_text, file_name)
     log(LOG_DEBG, "Done!", True)
 
     DBG.set(OPTIONS.LVL_LEXING)

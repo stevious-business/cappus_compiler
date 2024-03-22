@@ -220,7 +220,7 @@ machine, these may not be provided.",
                 else:
                     self.result_t = self.t
                 value = int(l_operand.assembly.lines[-1].split()[-1])
-                line = "%s T%d, T%d, T%d" % (
+                line = "%s T%d, T%d, %d" % (
                     op_imm,
                     self.result_t,
                     r_operand.result_t,

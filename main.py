@@ -15,9 +15,28 @@ from locals import *
 from cfclogger import log, timer, setup_logger, exit_logger
 
 SINGULAR_UNIT_NAME = "funcdef"
-DEFAULT_FILE_PATH = "code/tests/funcdef.cpl"
+DEFAULT_FILE_PATH = "code/tests/expressions/multiplication.cpl"
 DEFAULT_UNIT_NAME = "funcdef"
 DEFAULT_EXPECTATIONS = "i"
+
+"""
+TODO LIST:
+
+UNIT TEST MODIFICATIONS:
+- Shift unit test creation to unit_tests
+- Combine compile_unit_test and compile into one function
+  -> call one from the other
+- Implement function to update a unit test when a model changes
+  -> read from .unit_test, recompile code and rewrite output
+
+COMPILER ADDTIONS:
+- Implement preprocessor (COMPLETE)
+- Semantic analysis
+
+OTHER CHANGES:
+- Better args (also arg for terminal color -> school)
+
+"""
 
 if __name__ == "__main__":
 

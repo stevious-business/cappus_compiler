@@ -2,20 +2,27 @@ from io import TextIOWrapper
 
 
 class Source:
-    def __init__(self, file):
-        self.data = file.read()
-        self.file = file
-        if isinstance(file, TextIOWrapper):
-            self.filename = file.name
-        else:
-            self.filename = "(string)"
+    def __init__(self, text, filename):
+        self.data = text
+        #self.file = file
+        self.filename = filename
         self.length = len(self.data)
         self.ptr = 0
         self.chars = list(self.data)
         self.line = 1
         self.col = 0
+    
+    def get(self):
+        v = self.peek(0)
+        self.ptr += 1
+        return v
 
-    def get(self, _fp=False, depth=1, com=False) -> str:
+    def peek(self, depth=0):
+        if self.ptr + depth >= len(self.data):
+            return "EOF"
+        return self.data[self.ptr + depth]
+
+    """def get(self, _fp=False, depth=1, com=False) -> str:
         if self.ptr < self.length:
             if self.ptr+depth-1 < self.length:
                 c: str = self.chars[self.ptr+depth-1]
@@ -58,7 +65,7 @@ class Source:
     def peek(self, depth=1, com=False) -> str:
         c = self.get(_fp=True, depth=depth, com=com)
         self.ptr -= 1
-        return c
+        return c"""
 
     def get_pos(self) -> str:
         return f"<{self.filename}> {self.line}:{self.col}"
